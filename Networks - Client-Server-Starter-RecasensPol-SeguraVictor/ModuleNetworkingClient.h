@@ -37,7 +37,7 @@ private:
 
 	void onSocketDisconnected(SOCKET socket) override;
 
-
+	void LogOut();
 
 	//////////////////////////////////////////////////////////////////////
 	// Client state

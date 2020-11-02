@@ -6,7 +6,8 @@
 enum class ClientMessage
 {
 	Hello,
-	Message
+	Message,
+	Command
 };
 
 enum class ServerMessage
@@ -15,6 +16,10 @@ enum class ServerMessage
 	NoWelcome,
 	Join,
 	Left,
-	Chat
+	Chat,
+	Command,
+	Kick,
+	ChangeName,
+	NewName,
 };
 

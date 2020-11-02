@@ -80,11 +80,11 @@ bool ModuleNetworkingClient::gui()
 		ImVec2 texSize(400.0f, 400.0f * tex->height / tex->width);
 		ImGui::Image(tex->shaderResource, texSize);
 
-		ImGui::Text("Hello %s Welcome to the chat", playerName.c_str());
+		ImGui::Text("Hello %s, welcome to the chat", playerName.c_str());
 		ImGui::SameLine();
-		if (ImGui::Button("Logout")) {
-			onSocketDisconnected(socket_client);
-			disconnect();
+		if (ImGui::Button("Logout"))
+		{
+			LogOut();
 		}
 
 		if (ImGui::BeginChild("##chat", ImVec2(ImGui::GetWindowWidth() * 0.95f, ImGui::GetWindowHeight() * 0.65f), true))
@@ -99,15 +99,26 @@ bool ModuleNetworkingClient::gui()
 		static char str0[128] = "";
 		if (ImGui::InputText("Line", str0, IM_ARRAYSIZE(str0), ImGuiInputTextFlags_EnterReturnsTrue)) 
 		{
-			OutputMemoryStream packet;
-			packet << ClientMessage::Message;
-			packet << playerName;
-			packet << std::string(str0);
+			if (str0[0] != '\0')
+			{
+				OutputMemoryStream packet;
 
-			sendPacket(packet, socket_client);
+				if (str0[0] != '/')
+				{
+					packet << ClientMessage::Message;
+				}
+				else
+				{
+					packet << ClientMessage::Command;
+				}
 
-			strcpy_s(str0, "");
+				packet << playerName;
+				packet << std::string(str0);
+				sendPacket(packet, socket_client);
+				memset(str0, 0, 128);
+			}
 		}
+
 		// Demonstrate keeping auto focus on the input box
 		if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 			ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
@@ -126,35 +137,44 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 	packet >> serverMessage;
 	std::string msg;
 	packet >> msg;
+	ImVec4 color;
 
-	if (serverMessage == ServerMessage::Welcome) 
+	switch (serverMessage)
 	{
-		ImVec4 yellow(1.0f, 1.0f, 0.0f, 1.0f);
-		messages.push_back({ msg, yellow });
+	case ServerMessage::Welcome:
+		color = { 1.0f, 1.0f, 0.0f, 1.0f };
+		break;
+	case ServerMessage::NoWelcome:
+		color = { 1.0f, 0.0f, 0.0f, 1.0f };
+		break;
+	case ServerMessage::Join:
+		color = { 0.0f, 1.0f, 0.0f, 1.0f };
+		break;
+	case ServerMessage::Left:
+		color = { 0.8f, 0.8f, 0.8f, 1.0f };
+		break;
+	case ServerMessage::Chat:
+		color = { 1.0f, 1.0f, 1.0f, 1.0f};
+		break;
+	case ServerMessage::Command:
+		color = { 0.0f, 1.0f, 1.0f, 1.0f };
+		break;
+	case ServerMessage::ChangeName:
+		color = { 0.0f, 1.0f, 1.0f, 1.0f };
+		break;
+	case ServerMessage::Kick:
+		LogOut();
+		return;
+		break;
+	case ServerMessage::NewName:
+		std::string new_name;
+		packet >> new_name;
+		playerName = new_name;
+		color = { 0.0f, 1.0f, 1.0f, 1.0f };
+		break;
 	}
 
-	if (serverMessage == ServerMessage::NoWelcome)
-	{
-		ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
-		messages.push_back({ msg, red });
-	}
-
-	if (serverMessage == ServerMessage::Join)
-	{
-		ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
-		messages.push_back({ msg, green });
-	}
-	if (serverMessage == ServerMessage::Left)
-	{
-		ImVec4 grey(0.8f, 0.8f, 0.8f, 1.0f);
-		messages.push_back({ msg, grey });
-	}
-	if (serverMessage == ServerMessage::Chat)
-	{
-		ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
-		messages.push_back({ msg, white });
-	}
-	
+	messages.push_back({ msg, color });
 }
 
 void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)
@@ -165,5 +185,11 @@ void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)
 		messages.pop_back();
 	}
 	state = ClientState::Stopped;
+}
+
+void ModuleNetworkingClient::LogOut()
+{
+	onSocketDisconnected(socket_client);
+	disconnect();
 }
 

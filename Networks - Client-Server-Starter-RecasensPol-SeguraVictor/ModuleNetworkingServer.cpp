@@ -119,11 +119,12 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 	ClientMessage clientMessage;
 	packet >> clientMessage;
 
-	if (clientMessage == ClientMessage::Hello)
+	switch (clientMessage)
+	{
+	case ClientMessage::Hello:
 	{
 		std::string playerName;
 		packet >> playerName;
-
 
 		for (auto& connectedSocket : connectedSockets)
 		{
@@ -138,25 +139,26 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 				sendPacket(packet, s);
 
 				onSocketDisconnected(s);
+				shutdown(s, 2);
+				closesocket(s);
 
 				break;
 			}
-
 
 			if (connectedSocket.socket == s)
 			{
 				connectedSocket.playerName = playerName;
 
 				OutputMemoryStream packet;
-				std::string msg = std::string("**************************************************\n") 
+				std::string msg = std::string("**************************************************\n")
 					+ std::string("               ")
 					+ std::string("WELCOME TO THE CHAT\n")
 					+ std::string("Please type /help to see the available commands\n")
 					+ std::string("**************************************************\n");
 				packet << ServerMessage::Welcome;
 				packet << msg;
-				
-				if (sendPacket(packet, connectedSocket.socket)) 
+
+				if (sendPacket(packet, connectedSocket.socket))
 				{
 					OutputMemoryStream packetJoin;
 					std::string msgjoin = "***** " + playerName + " joined" + " *****";
@@ -169,14 +171,11 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 						sendPacket(packetJoin, connectedSocket2.socket);
 					}
 				}
-
-				
-
 			}
 		}
+		break;
 	}
-
-	else if (clientMessage == ClientMessage::Message)
+	case ClientMessage::Message:
 	{
 		std::string playerName;
 		std::string msg;
@@ -192,8 +191,110 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		{
 			sendPacket(packetMessage, connectedSocket.socket);
 		}
+
+		break;
 	}
-	
+	case ClientMessage::Command:
+	{
+		std::string playerName;
+		std::string command;
+		packet >> playerName;
+		packet >> command;
+
+		OutputMemoryStream packetMessage;
+		std::string message;
+		packetMessage << ServerMessage::Command;
+		
+
+		if (command.find("/help") == 0)
+		{
+			message = "---------------------------------------------\n" +
+				(std::string)"Here is the command list:\n" +
+				"/help -> To get help!\n" +
+				"/userlist -> View all users in the server\n" +
+				"/kick -> Expel a user. Please use gently :c\n"+
+				"/changename -> Change your nickname\n"+
+				"---------------------------------------------";
+		}
+		else if (command.find("/userlist") == 0)
+		{
+			message = "---------------------------------------------\nUsers in the server:\n";
+
+			for (auto iter = connectedSockets.begin(); iter != connectedSockets.end(); ++iter)
+			{
+				if ((*iter).socket == s)
+				{
+					message += "*" + (*iter).playerName + "* -> This is you :D\n";
+				}
+				else
+				{
+					message += (*iter).playerName + "\n";
+				}
+			}
+
+			message += "---------------------------------------------";
+		}
+		else if (command.find("/kick") == 0)
+		{
+			std::string user = GetWordInString(command, 1);
+
+			for (auto user_to_kick = connectedSockets.begin(); user_to_kick != connectedSockets.end(); ++user_to_kick)
+			{
+				if ((*user_to_kick).playerName.compare(user) == 0)
+				{
+					OutputMemoryStream kick_pack;
+					kick_pack << ServerMessage::Kick;
+					std::string msg = "";
+					kick_pack << msg;
+
+					sendPacket(kick_pack, (*user_to_kick).socket);
+					break;
+				}
+			}
+		}
+		else if (command.find("/changename") == 0)
+		{
+			std::string old_name = playerName;
+			std::string new_name = GetWordInString(command, 1);
+			
+			OutputMemoryStream pack;
+			std::string msg;
+			msg = "'" + old_name + "'" + " has changed their name to " + "'" + new_name + "'";
+			pack << ServerMessage::ChangeName;
+			pack << msg;
+
+			OutputMemoryStream newname_packet;
+			newname_packet << ServerMessage::NewName;
+			newname_packet << msg;
+			newname_packet << new_name;
+
+			for (auto& connectedsocket : connectedSockets)
+			{
+				if (connectedsocket.socket == s)
+				{
+					connectedsocket.playerName = new_name;
+					sendPacket(newname_packet, s);
+					
+					break;
+				}
+				else
+				{
+					sendPacket(pack, connectedsocket.socket);
+				}
+			}
+		}
+		else
+		{
+			message = "---------------------------------------------\nERROR: No such command exists\n---------------------------------------------";
+		}
+
+		packetMessage << message;
+
+		sendPacket(packetMessage, s);
+
+		break;
+	}
+	}
 }
 
 void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
@@ -224,5 +325,69 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 	{
 		sendPacket(packet, connectedSocket.socket);
 	}
+}
+
+std::string ModuleNetworkingServer::GetWordInString(const std::string& string, int word_position, bool want_to_take_all_remaining_words)
+{
+	std::string argument;
+
+	int current_word_position = 0;
+	bool add_letter = false;
+
+	if (word_position == 0)
+	{
+		for (auto character = string.begin(); character != string.end(); ++character)
+		{
+			if (*character == ' ')
+			{
+				return argument;
+			}
+			else
+			argument += *character;
+		}
+	}
+
+	for (auto character = string.begin(); character != string.end(); ++character)
+	{
+		if ((*character) == ' ')
+		{
+			if ((*character - 1) == ' ')
+			{
+				continue;
+			}
+			if (add_letter)
+			{
+				break;
+			}
+
+			++current_word_position;
+
+			if (current_word_position == word_position)
+			{
+				add_letter = true;
+			}
+			else if (current_word_position > word_position)
+			{
+				return "There aren't that many words";
+			}
+		}
+		else if (add_letter)
+		{
+			if (want_to_take_all_remaining_words)
+			{
+				for (auto curr_char = character; curr_char != string.end(); ++curr_char)
+				{
+					argument += *curr_char;
+				}
+				break;
+			}
+			else
+			{
+				argument += (*character);
+			}
+		}
+	}
+
+	return argument;
 }
 
