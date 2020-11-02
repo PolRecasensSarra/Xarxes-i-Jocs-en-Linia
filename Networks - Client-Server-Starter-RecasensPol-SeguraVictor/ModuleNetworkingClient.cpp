@@ -167,10 +167,15 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		return;
 		break;
 	case ServerMessage::NewName:
+	{
 		std::string new_name;
 		packet >> new_name;
 		playerName = new_name;
 		color = { 0.0f, 1.0f, 1.0f, 1.0f };
+		break;
+	}
+	case ServerMessage::ChangeNameError:
+		color = { 1.0f, 0.0f, 0.0f, 1.0f };
 		break;
 	}
 

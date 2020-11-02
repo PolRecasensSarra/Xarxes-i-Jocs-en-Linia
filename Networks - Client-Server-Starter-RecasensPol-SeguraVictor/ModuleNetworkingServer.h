@@ -42,6 +42,8 @@ private:
 
 	std::string GetWordInString(const std::string& string, int word_position, bool want_to_take_all_remaining_words = false);
 
+	bool IsNameAvailable(std::string name);
+
 	//////////////////////////////////////////////////////////////////////
 	// State
 	//////////////////////////////////////////////////////////////////////

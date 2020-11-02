@@ -21,5 +21,6 @@ enum class ServerMessage
 	Kick,
 	ChangeName,
 	NewName,
+	ChangeNameError,
 };
 

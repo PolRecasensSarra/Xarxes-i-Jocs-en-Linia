@@ -257,29 +257,49 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 			std::string old_name = playerName;
 			std::string new_name = GetWordInString(command, 1);
 			
-			OutputMemoryStream pack;
-			std::string msg;
-			msg = "'" + old_name + "'" + " has changed their name to " + "'" + new_name + "'";
-			pack << ServerMessage::ChangeName;
-			pack << msg;
-
-			OutputMemoryStream newname_packet;
-			newname_packet << ServerMessage::NewName;
-			newname_packet << msg;
-			newname_packet << new_name;
-
-			for (auto& connectedsocket : connectedSockets)
+			if (IsNameAvailable(new_name))
 			{
-				if (connectedsocket.socket == s)
+				OutputMemoryStream pack;
+				std::string msg;
+				msg = "'" + old_name + "'" + " has changed their name to " + "'" + new_name + "'";
+				pack << ServerMessage::ChangeName;
+				pack << msg;
+
+				OutputMemoryStream newname_packet;
+				newname_packet << ServerMessage::NewName;
+				newname_packet << msg;
+				newname_packet << new_name;
+
+				for (auto& connectedsocket : connectedSockets)
 				{
-					connectedsocket.playerName = new_name;
-					sendPacket(newname_packet, s);
-					
-					break;
+					if (connectedsocket.socket == s)
+					{
+						connectedsocket.playerName = new_name;
+						sendPacket(newname_packet, s);
+
+						break;
+					}
+					else
+					{
+						sendPacket(pack, connectedsocket.socket);
+					}
 				}
-				else
+			}
+			else
+			{
+				OutputMemoryStream pack;
+				std::string msg;
+				msg = "The name is already taken :(";
+				pack << ServerMessage::ChangeNameError;
+				pack << msg;
+
+				for (auto& connectedsocket : connectedSockets)
 				{
-					sendPacket(pack, connectedsocket.socket);
+					if (connectedsocket.socket == s)
+					{
+						sendPacket(pack, s);
+						break;
+					}
 				}
 			}
 		}
@@ -391,3 +411,15 @@ std::string ModuleNetworkingServer::GetWordInString(const std::string& string, i
 	return argument;
 }
 
+bool ModuleNetworkingServer::IsNameAvailable(std::string name)
+{
+	for (auto& connectedsocket : connectedSockets)
+	{
+		if (name == connectedsocket.playerName)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
