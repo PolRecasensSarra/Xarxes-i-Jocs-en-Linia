@@ -145,7 +145,9 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		color = { 1.0f, 1.0f, 0.0f, 1.0f };
 		break;
 	case ServerMessage::NoWelcome:
-		color = { 1.0f, 0.0f, 0.0f, 1.0f };
+		LOG("This username already exists! >:(");
+		LogOut();
+		return;
 		break;
 	case ServerMessage::Join:
 		color = { 0.0f, 1.0f, 0.0f, 1.0f };

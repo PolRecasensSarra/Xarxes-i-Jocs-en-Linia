@@ -131,17 +131,11 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 			if (connectedSocket.playerName == playerName)
 			{
 				OutputMemoryStream packet;
-				std::string msg = "This username already exists";
-
+				std::string msg = "";
 				packet << ServerMessage::NoWelcome;
 				packet << msg;
 
 				sendPacket(packet, s);
-
-				onSocketDisconnected(s);
-				shutdown(s, 2);
-				closesocket(s);
-
 				break;
 			}
 
