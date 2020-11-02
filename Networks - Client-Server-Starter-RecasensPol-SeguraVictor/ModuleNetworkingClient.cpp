@@ -154,7 +154,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		color = { 0.8f, 0.8f, 0.8f, 1.0f };
 		break;
 	case ServerMessage::Chat:
-		color = { 1.0f, 1.0f, 1.0f, 1.0f};
+		color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		break;
 	case ServerMessage::Command:
 		color = { 0.0f, 1.0f, 1.0f, 1.0f };
@@ -174,8 +174,11 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		color = { 0.0f, 1.0f, 1.0f, 1.0f };
 		break;
 	}
-	case ServerMessage::ChangeNameError:
+	case ServerMessage::Error:
 		color = { 1.0f, 0.0f, 0.0f, 1.0f };
+		break;
+	case ServerMessage::Whisper:
+		color = { 1.0f,0.0f,1.0f,1.0f };
 		break;
 	}
 

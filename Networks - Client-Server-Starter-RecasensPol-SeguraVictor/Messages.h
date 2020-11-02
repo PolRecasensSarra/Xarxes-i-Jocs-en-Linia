@@ -19,8 +19,9 @@ enum class ServerMessage
 	Chat,
 	Command,
 	Kick,
+	Error,
 	ChangeName,
 	NewName,
-	ChangeNameError,
+	Whisper,
 };
 

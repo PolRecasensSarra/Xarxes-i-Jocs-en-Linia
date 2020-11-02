@@ -214,6 +214,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 				"/userlist -> View all users in the server\n" +
 				"/kick -> Expel a user. Please use gently :c\n"+
 				"/changename -> Change your nickname\n"+
+				"/whisper -> Send a private text to someone ;)\n"
 				"---------------------------------------------";
 		}
 		else if (command.find("/userlist") == 0)
@@ -249,6 +250,16 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 
 					sendPacket(kick_pack, (*user_to_kick).socket);
 					break;
+				}
+				else if (user_to_kick == (connectedSockets.end() - 1))
+				{
+					// No player found with that name
+					OutputMemoryStream kick_error;
+					kick_error << ServerMessage::Error;
+					std::string msg = "*ERROR: No player found with that name.";
+					kick_error << msg;
+
+					sendPacket(kick_error, s);
 				}
 			}
 		}
@@ -290,7 +301,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 				OutputMemoryStream pack;
 				std::string msg;
 				msg = "The name is already taken :(";
-				pack << ServerMessage::ChangeNameError;
+				pack << ServerMessage::Error;
 				pack << msg;
 
 				for (auto& connectedsocket : connectedSockets)
@@ -300,6 +311,43 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 						sendPacket(pack, s);
 						break;
 					}
+				}
+			}
+		}
+		else if (command.find("/whisper") == 0)
+		{
+			std::string msg = playerName + ": " + GetWordInString(command, 2, true);
+			std::string player_to_send = GetWordInString(command, 1);
+
+			OutputMemoryStream pack;
+			pack << ServerMessage::Whisper;
+			pack << msg;
+			pack << player_to_send;
+			
+			bool playerfound = false;
+
+			for (auto connectedsocket = connectedSockets.begin(); connectedsocket != connectedSockets.end(); ++connectedsocket)
+			{
+				if ((*connectedsocket).playerName == player_to_send)
+				{
+					sendPacket(pack, (*connectedsocket).socket);
+					playerfound = true;
+				}
+				else if (connectedsocket == (connectedSockets.end() - 1) && !playerfound)
+				{
+					// No player found with that name
+					OutputMemoryStream whisper_error;
+					whisper_error << ServerMessage::Error;
+					std::string msg = "*ERROR: No player found with that name.";
+					whisper_error << msg;
+
+					sendPacket(whisper_error, s);
+					break;
+				}
+
+				if ((*connectedsocket).socket == s)
+				{
+					sendPacket(pack, (*connectedsocket).socket);
 				}
 			}
 		}
