@@ -58,11 +58,20 @@ private:
 
 	SOCKET listenSocket;
 
+	enum RockPaperScissorsElection
+	{
+		Rock,
+		Paper,
+		Scissors,
+		NONE = -1,
+	};
+
 	struct ConnectedSocket
 	{
 		sockaddr_in address;
 		SOCKET socket;
 		std::string playerName;
+		std::vector<std::pair<std::string, RockPaperScissorsElection>> players_sent;
 	};
 
 	std::vector<ConnectedSocket> connectedSockets;

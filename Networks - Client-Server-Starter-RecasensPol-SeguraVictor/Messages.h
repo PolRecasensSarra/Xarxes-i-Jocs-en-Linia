@@ -23,5 +23,6 @@ enum class ServerMessage
 	ChangeName,
 	NewName,
 	Whisper,
+	RockPaperScissors
 };
 

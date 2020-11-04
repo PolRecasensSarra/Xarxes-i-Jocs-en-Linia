@@ -111,7 +111,6 @@ void ModuleNetworkingServer::onSocketConnected(SOCKET socket, const sockaddr_in 
 	connectedSocket.socket = socket;
 	connectedSocket.address = socketAddress;
 	connectedSockets.push_back(connectedSocket);
-
 }
 
 void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStream& packet)
@@ -195,24 +194,34 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		packet >> playerName;
 		packet >> command;
 
-		OutputMemoryStream packetMessage;
-		std::string message;
-		packetMessage << ServerMessage::Command;
-		
-
 		if (command.find("/help") == 0)
 		{
+			OutputMemoryStream packetMessage;
+			std::string message;
+			packetMessage << ServerMessage::Command;
 			message = "---------------------------------------------\n" +
-				(std::string)"Here is the command list:\n" +
-				"/help -> To get help!\n" +
-				"/userlist -> View all users in the server\n" +
-				"/kick -> Expel a user. Please use gently :c\n"+
-				"/changename -> Change your nickname\n"+
-				"/whisper -> Send a private text to someone ;)\n"
+				(std::string)"Here is the command list:\n\n" +
+				"/help -> To get help!\n\n" +
+				"/userlist -> View all users in the server\n\n" +
+				"/kick -> Expel a user. Please use gently :c\n" +
+				"Example: /kick playername\n\n" +
+				"/changename -> Change your nickname\n" +
+				"Example: /changename new_name\n\n" +
+				"/whisper -> Send a private text to someone ;)\n" +
+				"Example: /whisper playername\n\n" +
+				"/rps -> Rock Paper Scissors Game!\n" +
+				"Example: /rps playername scissors\n\n" +
 				"---------------------------------------------";
+
+			packetMessage << message;
+
+			sendPacket(packetMessage, s);
 		}
 		else if (command.find("/userlist") == 0)
 		{
+			OutputMemoryStream packetMessage;
+			std::string message;
+			packetMessage << ServerMessage::Command;
 			message = "---------------------------------------------\nUsers in the server:\n";
 
 			for (auto iter = connectedSockets.begin(); iter != connectedSockets.end(); ++iter)
@@ -228,6 +237,10 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 			}
 
 			message += "---------------------------------------------";
+
+			packetMessage << message;
+
+			sendPacket(packetMessage, s);
 		}
 		else if (command.find("/kick") == 0)
 		{
@@ -261,7 +274,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 		{
 			std::string old_name = playerName;
 			std::string new_name = GetWordInString(command, 1);
-			
+
 			if (IsNameAvailable(new_name))
 			{
 				OutputMemoryStream pack;
@@ -313,21 +326,24 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 			std::string msg = playerName + ": " + GetWordInString(command, 2, true);
 			std::string player_to_send = GetWordInString(command, 1);
 
-			OutputMemoryStream pack;
-			pack << ServerMessage::Whisper;
-			pack << msg;
-			pack << player_to_send;
-			
-			bool playerfound = false;
-
 			for (auto connectedsocket = connectedSockets.begin(); connectedsocket != connectedSockets.end(); ++connectedsocket)
 			{
 				if ((*connectedsocket).playerName == player_to_send)
 				{
-					sendPacket(pack, (*connectedsocket).socket);
-					playerfound = true;
+					OutputMemoryStream pack_receiver;
+					pack_receiver << ServerMessage::Whisper;
+					pack_receiver << msg;
+
+					OutputMemoryStream pack_sender;
+					msg= playerName + "(to " + player_to_send + ")" + ": " + GetWordInString(command, 2, true);
+					pack_sender << ServerMessage::Whisper;
+					pack_sender << msg;
+
+					sendPacket(pack_receiver, (*connectedsocket).socket);
+					sendPacket(pack_sender, s);
+					break;
 				}
-				else if (connectedsocket == (connectedSockets.end() - 1) && !playerfound)
+				else if (connectedsocket == (connectedSockets.end() - 1))
 				{
 					// No player found with that name
 					OutputMemoryStream whisper_error;
@@ -338,21 +354,193 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 					sendPacket(whisper_error, s);
 					break;
 				}
+			}
+		}
+		else if (command.find("/rps") == 0)
+		{
+			std::string player_to_send = GetWordInString(command, 1);
+			std::string election = GetWordInString(command, 2);
+			RockPaperScissorsElection election_value = RockPaperScissorsElection::NONE;
+			SOCKET socket_to_send;
+			
+			// Save what move the player made
+			if (election.compare("rock") == 0)
+			{
+				election_value = RockPaperScissorsElection::Rock;
+			}
+			else if (election.compare("paper") == 0)
+			{
+				election_value = RockPaperScissorsElection::Paper;
+			}
+			else if (election.compare("scissors") == 0)
+			{
+				election_value = RockPaperScissorsElection::Scissors;
+			}
+			else
+			{
+				OutputMemoryStream error_packet;
+				error_packet << ServerMessage::Error;
+				std::string msg = "There exists no move like that in Rock Paper Scissors!";
+				error_packet << msg;
 
-				if ((*connectedsocket).socket == s)
+				sendPacket(error_packet, s);
+				return;
+			}
+
+			bool player_found = false;
+
+			// Checks if the player challenged already challenged the sender player
+			for (auto connectedsocket = connectedSockets.begin(); connectedsocket != connectedSockets.end(); ++connectedsocket)
+			{
+				if ((*connectedsocket).playerName == player_to_send)
 				{
-					sendPacket(pack, (*connectedsocket).socket);
+					socket_to_send = (*connectedsocket).socket;
+					player_found = true;
+
+					if ((*connectedsocket).players_sent.empty())
+					{
+						for (auto& iter : connectedSockets)
+						{
+							if (iter.socket == s)
+							{
+								iter.players_sent.push_back({ player_to_send, election_value });
+								
+							}
+						}
+						break;
+					}
+
+					for (auto i = (*connectedsocket).players_sent.begin(); i != (*connectedsocket).players_sent.end(); ++i)
+					{
+						if ((*i).first == playerName)
+						{
+							std::string first_player_election;
+							std::string who_wins;
+
+							switch ((*i).second)
+							{
+							case RockPaperScissorsElection::Rock:
+								first_player_election = "rock";
+
+								switch (election_value)
+								{
+								case RockPaperScissorsElection::Rock:
+									who_wins = "The result was a draw";
+									break;
+								case RockPaperScissorsElection::Paper:
+									who_wins = playerName + " wins!";
+									break;
+								case RockPaperScissorsElection::Scissors:
+									who_wins = player_to_send + " wins!";
+									break;
+								}
+
+								break;
+							case RockPaperScissorsElection::Paper:
+								first_player_election = "paper";
+
+								switch (election_value)
+								{
+								case RockPaperScissorsElection::Rock:
+									who_wins = player_to_send + " wins!";
+									break;
+								case RockPaperScissorsElection::Paper:
+									who_wins = "The result was a draw";
+									break;
+								case RockPaperScissorsElection::Scissors:
+									who_wins = playerName + " wins!";
+									break;
+								}
+
+								break;
+							case RockPaperScissorsElection::Scissors:
+								first_player_election = "scissors";
+
+								switch (election_value)
+								{
+								case RockPaperScissorsElection::Rock:
+									who_wins = playerName + " wins!";
+									break;
+								case RockPaperScissorsElection::Paper:
+									who_wins = player_to_send + " wins!";
+									break;
+								case RockPaperScissorsElection::Scissors:
+									who_wins = "The result was a draw";
+									break;
+								}
+
+								break;
+							}
+
+							// Answer Code
+							OutputMemoryStream return_packet;
+							return_packet << ServerMessage::RockPaperScissors;
+
+							std::string msg = "---------------------------------------------\n";
+							msg += "The challenge was answered!\n" + (*connectedsocket).playerName + " chose: " + first_player_election + ".\n" + playerName + " chose: " + election + ".\n*";
+							msg += who_wins;
+							msg += "\n---------------------------------------------\n";
+
+							return_packet << msg;
+
+							sendPacket(return_packet, s);
+							sendPacket(return_packet, socket_to_send);
+
+							(*connectedsocket).players_sent.erase(i);
+
+							return;
+						}
+						else if (i == ((*connectedsocket).players_sent.end() - 1))
+						{
+							for (auto& iter : connectedSockets)
+							{
+								if (iter.socket == s)
+								{
+									iter.players_sent.push_back({ player_to_send, election_value });
+								}
+							}
+						}
+					}
+				}
+				else if (connectedsocket == (connectedSockets.end() - 1) && !player_found)
+				{
+					// No player found with that name
+					OutputMemoryStream whisper_error;
+					whisper_error << ServerMessage::Error;
+					std::string msg = "*ERROR: No player found with that name.";
+					whisper_error << msg;
+
+					sendPacket(whisper_error, s);
+					return;
 				}
 			}
+
+
+			OutputMemoryStream game_sender;
+			game_sender << ServerMessage::RockPaperScissors;
+			std::string _msg = "---------------------------------------------\n";
+			_msg +=	"You challenged " + player_to_send + " to a Rock Paper Scissors Game!\nYou chose: " + election + "." + "\n---------------------------------------------";
+			game_sender << _msg;
+
+			sendPacket(game_sender, s);
+
+			OutputMemoryStream game_sent;
+			game_sent << ServerMessage::RockPaperScissors;
+			std::string msg = "---------------------------------------------\n" + playerName + " has challenged you to a Rock Paper Scissors Game!\nAnswer with /rockpaperscissors <playername> <election>\nExample: /rockpaperscissors playername scissors\n---------------------------------------------";
+			game_sent << msg;
+
+			sendPacket(game_sent, socket_to_send);
 		}
 		else
 		{
-			message = "---------------------------------------------\nERROR: No such command exists\n---------------------------------------------";
+			OutputMemoryStream packetMessage;
+			std::string message;
+			packetMessage << ServerMessage::Command;
+			message = "---------------------------------------------\nERROR: No such command exists.\n---------------------------------------------";
+			packetMessage << message;
+
+			sendPacket(packetMessage, s);
 		}
-
-		packetMessage << message;
-
-		sendPacket(packetMessage, s);
 
 		break;
 	}

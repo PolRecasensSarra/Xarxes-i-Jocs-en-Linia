@@ -182,6 +182,9 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 	case ServerMessage::Whisper:
 		color = { 1.0f,0.0f,1.0f,1.0f };
 		break;
+	case ServerMessage::RockPaperScissors:
+		color = { 1.0f,0.0f,1.0f,1.0f };
+		break;
 	}
 
 	messages.push_back({ msg, color });
