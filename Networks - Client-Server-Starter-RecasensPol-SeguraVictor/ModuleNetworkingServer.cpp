@@ -211,6 +211,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 				"Example: /whisper playername\n\n" +
 				"/rps -> Rock Paper Scissors Game!\n" +
 				"Example: /rps playername scissors\n\n" +
+				"/clear -> Clear the chat\n\n" +
 				"---------------------------------------------";
 
 			packetMessage << message;
@@ -526,10 +527,19 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET s, const InputMemoryStr
 
 			OutputMemoryStream game_sent;
 			game_sent << ServerMessage::RockPaperScissors;
-			std::string msg = "---------------------------------------------\n" + playerName + " has challenged you to a Rock Paper Scissors Game!\nAnswer with /rockpaperscissors <playername> <election>\nExample: /rockpaperscissors playername scissors\n---------------------------------------------";
+			std::string msg = "---------------------------------------------\n" + playerName + " has challenged you to a Rock Paper Scissors Game!\nAnswer with /rps <playername> <election>\nExample: /rps playername scissors\n---------------------------------------------";
 			game_sent << msg;
 
 			sendPacket(game_sent, socket_to_send);
+		}
+		else if (command.find("/clear") == 0)
+		{
+			OutputMemoryStream packet;
+			std::string msg = "";
+			packet << ServerMessage::Clear;
+			packet << msg;
+
+			sendPacket(packet, s);
 		}
 		else
 		{

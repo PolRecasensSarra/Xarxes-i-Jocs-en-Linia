@@ -38,6 +38,7 @@ private:
 	void onSocketDisconnected(SOCKET socket) override;
 
 	void LogOut();
+	void ClearChat();
 
 	//////////////////////////////////////////////////////////////////////
 	// Client state

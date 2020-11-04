@@ -185,6 +185,10 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET s, const InputMemoryStr
 	case ServerMessage::RockPaperScissors:
 		color = { 1.0f,0.0f,1.0f,1.0f };
 		break;
+	case ServerMessage::Clear:
+		ClearChat();
+		return;
+		break;
 	}
 
 	messages.push_back({ msg, color });
@@ -204,5 +208,12 @@ void ModuleNetworkingClient::LogOut()
 {
 	onSocketDisconnected(socket_client);
 	disconnect();
+}
+
+void ModuleNetworkingClient::ClearChat()
+{
+	while (!messages.empty()) {
+		messages.pop_back();
+	}
 }
 
