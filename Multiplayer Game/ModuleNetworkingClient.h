@@ -66,6 +66,11 @@ private:
 
 	float secondsSinceLastHello = 0.0f;
 
+	// disconecting stage
+
+	float secondsSinceLastReceivedPacket = 0.0f;
+	float pingTimer = 0.0f;
+
 
 	// Input ///////////
 
