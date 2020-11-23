@@ -145,8 +145,16 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				{
 					GameObject *gameObject = networkGameObjects[i];
 					
+
 					// TODO(you): World state replication lab session
+					proxy->replication_manager_server.create(gameObject->networkId);
+
+
 				}
+
+				OutputMemoryStream packet;
+				proxy->replication_manager_server.write(packet);
+				sendPacket(packet, fromAddress);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
@@ -192,7 +200,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			proxy->secondsSinceLastPacketReceived = 0.0f;
 			LOG("Ping Received");
 		}
-		// TODO(you): UDP virtual connection lab session
 	}
 }
 
@@ -220,7 +227,7 @@ void ModuleNetworkingServer::onUpdate()
 			{
 				clientProxy.secondsSinceLastPacketReceived += Time.deltaTime;
 				clientProxy.pingTimer += Time.deltaTime;
-				// TODO(you): UDP virtual connection lab session
+				
 				
 
 				if(clientProxy.secondsSinceLastPacketReceived > DISCONNECT_TIMEOUT_SECONDS)

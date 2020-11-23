@@ -109,11 +109,13 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	packet >> protoId;
 	if (protoId != PROTOCOL_ID) return;
 
-	ServerMessage message;
-	packet >> message;
+	
 
 	if (state == ClientState::Connecting)
 	{
+		ServerMessage message;
+		packet >> message;
+
 		if (message == ServerMessage::Welcome)
 		{
 			packet >> playerId;
@@ -131,6 +133,20 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): World state replication lab session
+		ClientMessage msg;
+		packet >> msg;
+
+		switch (msg)
+		{
+		case ClientMessage::Hello: {
+			break; }
+		case ClientMessage::Input: {
+			replication_manager_client.read(packet);
+			break; }
+		case ClientMessage::Ping: {
+			break; }
+	
+		}
 
 		// TODO(you): Reliability on top of UDP lab session
 	}
