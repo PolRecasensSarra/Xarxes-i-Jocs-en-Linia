@@ -1,4 +1,5 @@
 #include "Networks.h"
+#include "ModuleTextures.h"
 
 
 extern ID3D11Device *g_pd3dDevice;
@@ -78,6 +79,18 @@ void ModuleTextures::freeTexture(Texture* tex)
 			}
 		}
 	}
+}
+
+Texture* ModuleTextures::getTextureByID(int id)
+{
+	for (int i = 0; i < MAX_TEXTURES; ++i) 
+	{
+		if (id == _textures[i].id)
+			return &_textures[i];
+	}
+
+	return nullptr;
+	
 }
 
 ID3D11ShaderResourceView* ModuleTextures::loadD3DTextureFromFile(const char * filename, int * width, int * height)

@@ -8,6 +8,12 @@ struct Texture
 	const char *filename = "";
 	vec2 size = vec2{ -1.0f };
 	bool used = false;
+	int id = -1;
+
+	Texture() {
+		static int id_count = -1;
+		id = ++id_count;
+	}
 };
 
 class ModuleTextures : public Module
@@ -28,6 +34,8 @@ public:
 	Texture *loadTexture(void *pixels, int width, int height);
 
 	void freeTexture(Texture *texture);
+
+	Texture* getTextureByID(int id);
 
 
 private:

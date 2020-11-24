@@ -252,6 +252,12 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxy.gameObject = nullptr;
 				}
 
+				/*clientProxy.replication_manager_server.update(clientProxy.gameObject->networkId);
+
+				OutputMemoryStream packet_update;
+				clientProxy.replication_manager_server.write(packet_update);
+				sendPacket(packet_update, clientProxy.address);*/
+
 				// TODO(you): World state replication lab session
 
 				// TODO(you): Reliability on top of UDP lab session

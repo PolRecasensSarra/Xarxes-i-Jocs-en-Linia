@@ -48,6 +48,10 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 			packet << gameObject->tag;
 			packet << gameObject->networkInterpolationEnabled;
 			packet << gameObject->state;
+			if (gameObject->sprite && gameObject->sprite->texture)
+				packet << gameObject->sprite->texture->id;
+			else
+				packet << -1;
 
 
 			(*item).second = ReplicationAction::None;

@@ -48,6 +48,19 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 			packet >> gameObject->networkInterpolationEnabled;
 			packet >> gameObject->state;
 
+			int tex_id;
+			packet >> tex_id;
+
+			if (tex_id != -1)
+			{
+				gameObject->sprite = App->modRender->addSprite(gameObject);
+
+				if (gameObject->sprite)
+					gameObject->sprite->texture = App->modTextures->getTextureByID(tex_id);
+			}
+
+			
+
 			LOG("POSITION X: %f", gameObject->position.x);
 			LOG("POSITION Y: %f", gameObject->position.y);
 
