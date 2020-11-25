@@ -147,7 +147,8 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					
 
 					// TODO(you): World state replication lab session
-					proxy->replication_manager_server.create(gameObject->networkId);
+					//proxy->replication_manager_server.create(gameObject->networkId);
+					//proxy->replication_manager_server.update(gameObject->networkId);
 
 
 				}
@@ -193,6 +194,26 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 					}
 				}
+
+				// Send all network objects to the new player
+				uint16 networkGameObjectsCount;
+				GameObject* networkGameObjects[MAX_NETWORK_OBJECTS];
+				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
+				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
+				{
+					GameObject* gameObject = networkGameObjects[i];
+
+					// TODO(you): World state replication lab session
+					proxy->replication_manager_server.create(gameObject->networkId);
+
+				}
+
+				OutputMemoryStream packet;
+				proxy->replication_manager_server.write(packet);
+				sendPacket(packet, fromAddress);
+
+
+
 			}
 		}
 		else if (message == ClientMessage::Ping)
@@ -252,12 +273,16 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxy.gameObject = nullptr;
 				}
 
-				/*clientProxy.replication_manager_server.update(clientProxy.gameObject->networkId);
 
-				OutputMemoryStream packet_update;
-				clientProxy.replication_manager_server.write(packet_update);
-				sendPacket(packet_update, clientProxy.address);*/
+				/*if (clientProxy.gameObject)
+				{
+					clientProxy.replication_manager_server.update(clientProxy.gameObject->networkId);
 
+					OutputMemoryStream packet_update;
+					clientProxy.replication_manager_server.write(packet_update);
+					sendPacket(packet_update, clientProxy.address);
+				}*/
+				
 				// TODO(you): World state replication lab session
 
 				// TODO(you): Reliability on top of UDP lab session
