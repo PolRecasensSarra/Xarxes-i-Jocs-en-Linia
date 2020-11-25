@@ -141,18 +141,36 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				uint16 networkGameObjectsCount;
 				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
+				GameObject* go_aux = nullptr;
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					GameObject *gameObject = networkGameObjects[i];
-					
 					// TODO(you): World state replication lab session
-					proxy->replication_manager_server.create(gameObject->networkId);
+					proxy->replication_manager_server.create(gameObject->networkId);  // En teoria això hauria d'instanciar els objectes antics al nou proxy
 
+					go_aux = gameObject;
 				}
 
 				OutputMemoryStream packet;
 				proxy->replication_manager_server.write(packet);
 				sendPacket(packet, fromAddress);
+
+
+
+				// En teoria això hauria d'instanciar nous objectes als altres clients
+				for (int i = 0; i < MAX_CLIENTS; ++i)
+				{
+					if (&clientProxies[i] != proxy)
+					{
+						
+						clientProxies[i].replication_manager_server.create(go_aux->networkId);
+						
+
+						OutputMemoryStream packet;
+						clientProxies[i].replication_manager_server.write(packet);
+						sendPacket(packet, clientProxies[i].address);
+					}
+				}
 
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
