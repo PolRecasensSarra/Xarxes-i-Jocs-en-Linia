@@ -145,17 +145,15 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				{
 					GameObject *gameObject = networkGameObjects[i];
 					
-
 					// TODO(you): World state replication lab session
-					//proxy->replication_manager_server.create(gameObject->networkId);
-					//proxy->replication_manager_server.update(gameObject->networkId);
-
+					proxy->replication_manager_server.create(gameObject->networkId);
 
 				}
 
 				OutputMemoryStream packet;
 				proxy->replication_manager_server.write(packet);
 				sendPacket(packet, fromAddress);
+
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
@@ -194,24 +192,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 					}
 				}
-
-				// Send all network objects to the new player
-				uint16 networkGameObjectsCount;
-				GameObject* networkGameObjects[MAX_NETWORK_OBJECTS];
-				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
-				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
-				{
-					GameObject* gameObject = networkGameObjects[i];
-
-					// TODO(you): World state replication lab session
-					proxy->replication_manager_server.create(gameObject->networkId);
-
-				}
-
-				OutputMemoryStream packet;
-				proxy->replication_manager_server.write(packet);
-				sendPacket(packet, fromAddress);
-
 
 
 			}
@@ -273,15 +253,6 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxy.gameObject = nullptr;
 				}
 
-
-				/*if (clientProxy.gameObject)
-				{
-					clientProxy.replication_manager_server.update(clientProxy.gameObject->networkId);
-
-					OutputMemoryStream packet_update;
-					clientProxy.replication_manager_server.write(packet_update);
-					sendPacket(packet_update, clientProxy.address);
-				}*/
 				
 				// TODO(you): World state replication lab session
 
@@ -439,6 +410,12 @@ void ModuleNetworkingServer::updateNetworkObject(GameObject * gameObject)
 	{
 		if (clientProxies[i].connected)
 		{
+			clientProxies[i].replication_manager_server.update(gameObject->networkId);
+			
+			OutputMemoryStream packet;
+
+			clientProxies[i].replication_manager_server.write(packet);
+			sendPacket(packet, clientProxies[i].address);
 			// TODO(you): World state replication lab session
 		}
 	}
