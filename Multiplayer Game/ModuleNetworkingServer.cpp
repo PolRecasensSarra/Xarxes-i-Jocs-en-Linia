@@ -157,20 +157,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 
 
-				// En teoria això hauria d'instanciar nous objectes als altres clients
-				for (int i = 0; i < MAX_CLIENTS; ++i)
-				{
-					if (&clientProxies[i] != proxy)
-					{
-						
-						clientProxies[i].replication_manager_server.create(go_aux->networkId);
-						
-
-						OutputMemoryStream packet;
-						clientProxies[i].replication_manager_server.write(packet);
-						sendPacket(packet, clientProxies[i].address);
-					}
-				}
+		
 
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -271,7 +258,9 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxy.gameObject = nullptr;
 				}
 
-				
+				OutputMemoryStream packet_up;
+				clientProxy.replication_manager_server.write(packet_up);
+				sendPacket(packet_up, clientProxy.address);
 				// TODO(you): World state replication lab session
 
 				// TODO(you): Reliability on top of UDP lab session
@@ -415,6 +404,7 @@ GameObject * ModuleNetworkingServer::instantiateNetworkObject()
 		if (clientProxies[i].connected)
 		{
 			// TODO(you): World state replication lab session
+			clientProxies[i].replication_manager_server.create(gameObject->networkId);
 		}
 	}
 

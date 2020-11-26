@@ -37,6 +37,7 @@ private:
 
 		const char *filename = nullptr;
 		Texture **texture = nullptr;
+		int id;
 
 		void execute() override;
 	};
@@ -48,7 +49,7 @@ private:
 
 	void onTaskFinished(Task *task) override;
 
-	void loadTextureAsync(const char *filename, Texture **texturePtrAddress);
+	void loadTextureAsync(const char *filename, Texture **texturePtrAddress, int id);
 
 #endif
 

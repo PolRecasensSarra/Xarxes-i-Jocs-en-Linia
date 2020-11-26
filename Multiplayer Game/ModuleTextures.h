@@ -10,10 +10,6 @@ struct Texture
 	bool used = false;
 	int id = -1;
 
-	Texture() {
-		static int id_count = -1;
-		id = ++id_count;
-	}
 };
 
 class ModuleTextures : public Module
