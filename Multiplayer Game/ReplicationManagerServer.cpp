@@ -51,8 +51,13 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 
 			if ((*item).second == ReplicationAction::Create)
 			{
-				if (gameObject->sprite && gameObject->sprite->texture)
+				if (gameObject->sprite != nullptr && gameObject->sprite->texture != nullptr)
+				{
 					packet << gameObject->sprite->texture->id;
+					packet.Write(gameObject->sprite->color);
+					packet << gameObject->sprite->order;
+					packet.Write(gameObject->sprite->pivot);
+				}
 				else
 					packet << -1;
 			}

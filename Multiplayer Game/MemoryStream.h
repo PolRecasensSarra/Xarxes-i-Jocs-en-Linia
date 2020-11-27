@@ -74,6 +74,22 @@ public:
 		Write( inString.data(), elementCount * sizeof( char ) );
 	}
 
+	// Write for vec4
+	void Write(const vec4& data)
+	{
+		Write(data.x);
+		Write(data.y);
+		Write(data.z);
+		Write(data.w);
+	}
+	//write for vec2
+	void Write(const vec2& data)
+	{
+		Write(data.x);
+		Write(data.y);
+	}
+
+
 	// Generic operator <<
 	template< typename T >
 	OutputMemoryStream &operator<<(const T &data) {
@@ -157,6 +173,36 @@ public:
 		inString.resize(elementCount);
 		for (auto &character : inString) {
 			Read(character);
+		}
+	}
+
+
+	// Read for vec4
+	void Read(vec4& data) const
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (i == 0)
+				Read(data.x);
+			else if (i == 1)
+				Read(data.y);
+			else if (i == 2)
+				Read(data.z);
+			else if (i == 3)
+				Read(data.w);
+		}
+		
+	}
+
+	// Read for vec2
+	void Read(vec2& data) const
+	{
+		for (int i = 0; i < 2; ++i)
+		{
+			if (i == 0)
+				Read(data.x);
+			else if (i == 1)
+				Read(data.y);
 		}
 	}
 

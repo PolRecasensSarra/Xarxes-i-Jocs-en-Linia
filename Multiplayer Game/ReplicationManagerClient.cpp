@@ -59,8 +59,15 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					{
 						gameObject->sprite = App->modRender->addSprite(gameObject);
 
-						if (gameObject->sprite)
+						if (gameObject->sprite != nullptr)
+						{
 							gameObject->sprite->texture = App->modTextures->getTextureByID(tex_id);
+
+							packet.Read(gameObject->sprite->color);
+							packet >> gameObject->sprite->order;
+							packet.Read(gameObject->sprite->pivot);
+							
+						}
 					}
 
 				}
