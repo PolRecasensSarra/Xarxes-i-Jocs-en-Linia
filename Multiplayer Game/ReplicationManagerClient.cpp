@@ -29,7 +29,11 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 			if (action == ReplicationAction::Update)
 			{
 				gameObject = App->modLinkingContext->getNetworkGameObject(id);
-				
+				if (gameObject == nullptr)
+				{
+					gameObject = App->modGameObject->Instantiate();
+					App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, id);
+				}
 			}
 
 			else
