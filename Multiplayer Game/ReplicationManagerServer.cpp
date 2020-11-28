@@ -47,7 +47,7 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 			packet << gameObject->angle;
 			packet << gameObject->tag;
 			packet << gameObject->networkInterpolationEnabled;
-			packet << gameObject->state;
+			
 
 
 
@@ -75,7 +75,7 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 				}
 				else
 					packet << 0;
-
+				
 
 				//Textures
 				if (gameObject->sprite != nullptr && gameObject->sprite->texture != nullptr)

@@ -19,8 +19,9 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 		if (action == ReplicationAction::Destroy)
 		{
 			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(id);
-
-			// TODO: (POL) DELETE THIS SHIT
+			App->modLinkingContext->unregisterNetworkGameObject(gameObject);
+			App->modGameObject->Destroy(gameObject);
+			
 		}
 		else if (action != ReplicationAction::None)
 		{
@@ -52,7 +53,8 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 				packet >> gameObject->angle;
 				packet >> gameObject->tag;
 				packet >> gameObject->networkInterpolationEnabled;
-				packet >> gameObject->state;
+				
+
 
 				
 				if (action == ReplicationAction::Create)
@@ -81,6 +83,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 						break; }
 					}
 
+					
 
 					//Textures
 
