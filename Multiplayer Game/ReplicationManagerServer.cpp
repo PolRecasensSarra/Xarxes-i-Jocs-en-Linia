@@ -34,23 +34,50 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 			item = actions.erase(item);
 			continue;
 		}
-		else if ((*item).second!= ReplicationAction::None)
+		else if ((*item).second != ReplicationAction::None)
 		{
 			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject((*item).first);
 
-			
+
 			packet << gameObject->position.x;
 			packet << gameObject->position.y;
 			packet << gameObject->size.x;
 			packet << gameObject->size.y;
-			
+
 			packet << gameObject->angle;
 			packet << gameObject->tag;
 			packet << gameObject->networkInterpolationEnabled;
 			packet << gameObject->state;
 
+
+
 			if ((*item).second == ReplicationAction::Create)
 			{
+				//Behaviour
+				if (gameObject->behaviour != nullptr)
+				{
+					int type = (int)gameObject->behaviour->type();
+
+					switch (type)
+					{
+					case 0: {
+						//There's no behaviour xD
+						break; }
+					case 1: { //Spaceship
+						packet << type;
+						gameObject->behaviour->write(packet);
+						break; }
+					case 2: { //Laser
+						packet << type;
+						break; }
+					}
+
+				}
+				else
+					packet << 0;
+
+
+				//Textures
 				if (gameObject->sprite != nullptr && gameObject->sprite->texture != nullptr)
 				{
 					packet << gameObject->sprite->texture->id;

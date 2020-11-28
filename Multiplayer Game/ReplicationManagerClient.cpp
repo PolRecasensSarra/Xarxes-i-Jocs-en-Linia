@@ -54,8 +54,36 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 				packet >> gameObject->networkInterpolationEnabled;
 				packet >> gameObject->state;
 
+				
 				if (action == ReplicationAction::Create)
 				{
+
+					//Behaviour
+					int type = 0;
+					packet >> type;
+
+					switch (type)
+					{
+					case 0: {
+						//There's no behaviour xD
+						break; }
+
+					case 1: { //SpaceShip
+						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Spaceship, gameObject);
+
+						if (gameObject->behaviour != nullptr)
+							gameObject->behaviour->read(packet);
+
+						break; }
+
+					case 2: { //Laser
+						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Laser, gameObject);
+						break; }
+					}
+
+
+					//Textures
+
 					int tex_id;
 					packet >> tex_id;
 

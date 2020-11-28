@@ -29,9 +29,9 @@ struct Behaviour
 
 enum class BehaviourType : uint8
 {
-	None,
-	Spaceship,
-	Laser,
+	None = 0,
+	Spaceship = 1,
+	Laser = 2,
 };
 
 
