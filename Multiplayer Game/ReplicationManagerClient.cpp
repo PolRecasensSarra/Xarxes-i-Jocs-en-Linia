@@ -55,6 +55,13 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 				packet >> gameObject->networkInterpolationEnabled;
 				
 
+				if (action == ReplicationAction::Update && gameObject->behaviour != nullptr)
+				{
+					if (gameObject->behaviour->type() == BehaviourType::Spaceship)
+					{
+						gameObject->behaviour->read(packet);
+					}
+				}
 
 				
 				if (action == ReplicationAction::Create)

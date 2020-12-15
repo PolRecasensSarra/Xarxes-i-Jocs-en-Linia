@@ -49,7 +49,13 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 			packet << gameObject->networkInterpolationEnabled;
 			
 
-
+			if ((*item).second == ReplicationAction::Update && gameObject->behaviour != nullptr)
+			{
+				if (gameObject->behaviour->type() == BehaviourType::Spaceship)
+				{
+					gameObject->behaviour->write(packet);
+				}
+			}
 
 			if ((*item).second == ReplicationAction::Create)
 			{
