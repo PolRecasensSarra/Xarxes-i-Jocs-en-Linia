@@ -89,10 +89,10 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 					packet << -1;
 
 				//Animation
-				if (gameObject->animation != nullptr)
-					packet << 1;
+				if (gameObject->animation != nullptr && gameObject->animation->clip != nullptr)
+					packet << gameObject->animation->type;
 				else
-					packet << -1;
+					packet << AnimationType::None;
 
 
 			}

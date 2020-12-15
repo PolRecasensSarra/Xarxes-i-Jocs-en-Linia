@@ -13,6 +13,7 @@ struct Sprite
 
 const uint8 MAX_ANIMATION_CLIP_FRAMES = 25;
 
+
 struct AnimationClip
 {
 	vec4 frameRect[MAX_ANIMATION_CLIP_FRAMES];
@@ -27,12 +28,19 @@ struct AnimationClip
 	}
 };
 
+enum class AnimationType : uint8
+{
+	None = 0,
+	Explosion = 1,
+};
+
 struct Animation
 {
 	GameObject *gameObject = nullptr;
 	AnimationClip *clip = nullptr;
 	float elapsedTime = 0.0f;
 	uint8 currentFrame = 0;
+	AnimationType type = AnimationType::None;
 
 	void update(float deltaTime)
 	{

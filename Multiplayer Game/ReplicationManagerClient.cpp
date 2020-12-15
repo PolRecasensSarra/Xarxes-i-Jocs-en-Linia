@@ -106,16 +106,24 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					}
 
 					//Animations
-					int anim;
+					AnimationType anim;
 					packet >> anim;
 
-					if (anim == 1)
+					switch (anim)
 					{
-						gameObject->animation = App->modRender->addAnimation(gameObject);
+					case AnimationType::None: {
+						break; }
+					case AnimationType::Explosion: {
 
+						gameObject->animation = App->modRender->addAnimation(gameObject);
 						if (gameObject->animation != nullptr)
 							gameObject->animation->clip = App->modResources->explosionClip;
+
+						break; }
+
 					}
+					
+						
 					
 
 

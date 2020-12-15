@@ -143,6 +143,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			explosion->animation = App->modRender->addAnimation(explosion);
 			explosion->animation->clip = App->modResources->explosionClip;
+			explosion->animation->type = AnimationType::Explosion;
 
 			NetworkDestroy(explosion, 2.0f);
 
