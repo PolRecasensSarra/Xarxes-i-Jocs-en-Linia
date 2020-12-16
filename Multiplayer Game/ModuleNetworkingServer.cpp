@@ -178,7 +178,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			if (proxy != nullptr && IsValid(proxy->gameObject))
 			{
 				// TODO(you): Reliability on top of UDP lab session
-
+				uint32 lastSequenceNumber = 0;
 				// Read input data
 				while (packet.RemainingByteCount() > 0)
 				{
@@ -196,8 +196,15 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 					}
-				}
 
+					lastSequenceNumber = inputData.sequenceNumber;
+				}
+				OutputMemoryStream packet;
+				packet << PROTOCOL_ID;
+				packet << ServerMessage::Reliability;
+				packet << lastSequenceNumber;
+				sendPacket(packet, fromAddress);
+				// TODO(pol): Enviar al client aquest número perque sàpiga que he llegit fins aquest
 
 			}
 		}
@@ -261,7 +268,7 @@ void ModuleNetworkingServer::onUpdate()
 				OutputMemoryStream packet_up;
 				clientProxy.replication_manager_server.write(packet_up);
 				sendPacket(packet_up, clientProxy.address);
-				// TODO(you): World state replication lab session
+				
 
 				// TODO(you): Reliability on top of UDP lab session
 			}

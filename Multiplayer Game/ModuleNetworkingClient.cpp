@@ -133,17 +133,20 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): World state replication lab session
-		ClientMessage msg;
+		ServerMessage msg;
 		packet >> msg;
 
 		switch (msg)
 		{
-		case ClientMessage::Hello: {
+		case ServerMessage::Welcome: {
 			break; }
-		case ClientMessage::Input: {
+		case ServerMessage::Replication: {
 			replication_manager_client.read(packet);
 			break; }
-		case ClientMessage::Ping: {
+		case ServerMessage::Reliability: {
+			uint32 i = 0U;
+			packet >> i;
+			inputDataFront = i;
 			break; }
 	
 		}
@@ -233,8 +236,6 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.buttonBits;
 			}
 
-			// Clear the queue
-			inputDataFront = inputDataBack;
 
 			sendPacket(packet, serverAddress);
 		}
