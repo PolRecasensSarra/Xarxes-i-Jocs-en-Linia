@@ -50,7 +50,7 @@ private:
 		std::string name;
 		GameObject *gameObject = nullptr;
 
-		// TODO(you done): World state replication lab session
+		
 		// TODO(you): Reliability on top of UDP lab session
 		float secondsSinceLastPacketReceived = 0.0f;
 		float pingTimer = 0.0f;

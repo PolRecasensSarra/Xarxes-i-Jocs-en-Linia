@@ -151,7 +151,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	
 		}
 
-		// TODO(you): Reliability on top of UDP lab session
+
 	}
 }
 
@@ -225,7 +225,7 @@ void ModuleNetworkingClient::onUpdate()
 			packet << PROTOCOL_ID;
 			packet << ClientMessage::Input;
 
-			// TODO(you): Reliability on top of UDP lab session
+			
 
 			for (uint32 i = inputDataFront; i < inputDataBack; ++i)
 			{

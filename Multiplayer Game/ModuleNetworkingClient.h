@@ -91,7 +91,7 @@ private:
 	//////////////////////////////////////////////////////////////////////
 	ReplicationManagerClient replication_manager_client;
 
-	// TODO(you): World state replication lab session
+
 
 
 

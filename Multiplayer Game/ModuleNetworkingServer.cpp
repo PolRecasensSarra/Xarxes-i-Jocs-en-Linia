@@ -177,7 +177,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			// Process the input packet and update the corresponding game object
 			if (proxy != nullptr && IsValid(proxy->gameObject))
 			{
-				// TODO(you): Reliability on top of UDP lab session
+				
 				uint32 lastSequenceNumber = 0;
 				// Read input data
 				while (packet.RemainingByteCount() > 0)
@@ -204,7 +204,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				packet << ServerMessage::Reliability;
 				packet << lastSequenceNumber;
 				sendPacket(packet, fromAddress);
-				// TODO(pol): Enviar al client aquest número perque sàpiga que he llegit fins aquest
+				
 
 			}
 		}
