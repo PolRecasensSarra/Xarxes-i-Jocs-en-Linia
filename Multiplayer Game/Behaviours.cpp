@@ -31,6 +31,7 @@ void Laser::update()
 	}
 }
 
+
 void Asteroid::start()
 {
 	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
@@ -81,6 +82,18 @@ void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 	}
 }
 
+void Battery::start()
+{
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
+
+	// Create collider
+	gameObject->collider = App->modCollision->addCollider(ColliderType::Battery, gameObject);
+}
+
+void Battery::update()
+{
+}
+
 
 
 void Spaceship::start()
@@ -129,10 +142,24 @@ void Spaceship::onInput(const InputController &input)
 
 			laser->sprite = App->modRender->addSprite(laser);
 			laser->sprite->order = 3;
-			laser->sprite->texture = App->modResources->laser;
 
-			Laser *laserBehaviour = App->modBehaviour->addLaser(laser);
+			Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
+
+			if (powerUp)
+			{
+				laser->sprite->texture = App->modResources->laser2;
+				laserBehaviour->powerUp = true;
+				powerUp = false;
+			}
+			else
+			{
+				laser->sprite->texture = App->modResources->laser;
+				laserBehaviour->powerUp = false;
+			}
+
+			
 			laserBehaviour->isServer = isServer;
+			
 
 			laser->tag = gameObject->tag;
 		}
@@ -165,6 +192,30 @@ void Spaceship::onInput(const InputController &input)
 			
 		}
 	}
+	if (input.rightShoulder == ButtonState::Press)
+	{
+		//TODO(pol): canviar això d'aquí a un random generator de bateries al principi de la partida
+		if (isServer)
+		{
+			GameObject* battery = NetworkInstantiate();
+
+			battery->position = gameObject->position + vec2{ 150.0, -100.0 };
+			battery->angle = 0.0f;
+			battery->size = vec2{ 0.0f,0.0f};
+
+			battery->sprite = App->modRender->addSprite(battery);
+			battery->sprite->order = 3;
+		
+			battery->sprite->texture = App->modResources->battery;
+
+
+
+			Battery* batteryBehaviour = App->modBehaviour->addBattery(battery);
+			batteryBehaviour->isServer = isServer;
+
+
+		}
+	}
 }
 
 void Spaceship::update()
@@ -192,7 +243,16 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		
 			if (hitPoints > 0)
 			{
-				hitPoints--;
+				if (!c2.gameObject->behaviour->GetIfPowerUp())
+				{
+					hitPoints--;
+				}
+				else
+				{
+					hitPoints -= 3;
+					gameObject->behaviour->SetIfPowerUp(false);
+				}
+				
 				NetworkUpdate(gameObject);
 			}
 
@@ -255,16 +315,49 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		// You need to somehow make this happen in clients
 		App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 	}
+	else if (c2.type == ColliderType::Battery)
+	{
+		if (isServer)
+		{
+			NetworkDestroy(c2.gameObject); // Destroy the battery
+			powerUp = true;
+			//TODO(pol): ficar aquí un bolea de que tenim el pickup
+
+			//TODO(pol): posar aquí l'audio de pickup App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+		}
+	}
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
 {
 	packet << hitPoints;
+	packet << powerUp;
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
+	packet >> powerUp;
+}
+
+bool Laser::GetIfPowerUp()
+{
+	return powerUp;
+}
+
+void Laser::SetIfPowerUp(bool powerup)
+{
+	powerUp = powerup;
+}
+
+void Laser::write(OutputMemoryStream& packet)
+{
+	packet << powerUp;
+}
+
+void Laser::read(const InputMemoryStream& packet)
+{
+	packet >> powerUp;
 }
 
 

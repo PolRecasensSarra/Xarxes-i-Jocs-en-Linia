@@ -61,6 +61,10 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					{
 						gameObject->behaviour->read(packet);
 					}
+					if (gameObject->behaviour->type() == BehaviourType::Laser)
+					{
+						gameObject->behaviour->read(packet);
+					}
 				}
 
 				
@@ -91,6 +95,9 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 
 					case 3: { //Asteroid
 						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
+						break; }
+					case 4: { //Battery
+						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Battery, gameObject);
 						break; }
 					}
 

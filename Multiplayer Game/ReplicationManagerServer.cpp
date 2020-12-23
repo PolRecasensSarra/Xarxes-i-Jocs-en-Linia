@@ -55,6 +55,10 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 				{
 					gameObject->behaviour->write(packet);
 				}
+				if (gameObject->behaviour->type() == BehaviourType::Laser)
+				{
+					gameObject->behaviour->write(packet);
+				}
 			}
 
 			if ((*item).second == ReplicationAction::Create)
@@ -77,6 +81,9 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 						packet << type;
 						break; }
 					case 3: { //Asteroid
+						packet << type;
+						break; }
+					case 4: { //Battery
 						packet << type;
 						break; }
 					}

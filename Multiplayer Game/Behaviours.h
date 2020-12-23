@@ -24,6 +24,9 @@ struct Behaviour
 	virtual void write(OutputMemoryStream &packet) { }
 
 	virtual void read(const InputMemoryStream &packet) { }
+
+	virtual bool GetIfPowerUp() { return false; }
+	virtual void SetIfPowerUp(bool powerup){}
 };
 
 
@@ -33,23 +36,32 @@ enum class BehaviourType : uint8
 	Spaceship = 1,
 	Laser = 2,
 	Asteroid = 3,
+	Battery = 4,
 };
 
 
 struct Laser : public Behaviour
 {
 	float secondsSinceCreation = 0.0f;
+	bool powerUp = false;
 
 	BehaviourType type() const override { return BehaviourType::Laser; }
 
 	void start() override;
 
 	void update() override;
+
+	bool GetIfPowerUp() override;
+	void SetIfPowerUp(bool powerup) override;
+
+	void write(OutputMemoryStream& packet) override;
+
+	void read(const InputMemoryStream& packet) override;
+
 };
 
 struct Asteroid : public Behaviour
 {
-	float secondsSinceCreation = 0.0f;
 
 	BehaviourType type() const override { return BehaviourType::Asteroid; }
 
@@ -62,12 +74,23 @@ struct Asteroid : public Behaviour
 	void onCollisionTriggered(Collider& c1, Collider& c2) override;
 };
 
+struct Battery : public Behaviour
+{
+
+	BehaviourType type() const override { return BehaviourType::Asteroid; }
+
+	void start() override;
+
+	void update() override;
+};
+
 struct Spaceship : public Behaviour
 {
 	static const uint8 MAX_HIT_POINTS = 5;
 	uint8 hitPoints = MAX_HIT_POINTS;
 
 	GameObject *lifebar = nullptr;
+	bool powerUp = false;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
@@ -84,4 +107,6 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet) override;
+
+
 };

@@ -18,6 +18,12 @@ bool ModuleBehaviour::update()
 		handleBehaviourLifeCycle(&behaviour);
 
 	}
+
+	for (Battery& behaviour : battery)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+
+	}
 	return true;
 }
 
@@ -31,6 +37,8 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 		return addLaser(parentGameObject);
 	case BehaviourType::Asteroid:
 		return addAsteroid(parentGameObject);
+	case BehaviourType::Battery:
+		return addBattery(parentGameObject);
 	default:
 		return nullptr;
 	}
@@ -73,6 +81,23 @@ Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject)
 Asteroid* ModuleBehaviour::addAsteroid(GameObject* parentGameObject)
 {
 	for (Asteroid& behaviour : asteroids)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
+
+	ASSERT(false);
+	return nullptr;
+}
+
+Battery* ModuleBehaviour::addBattery(GameObject* parentGameObject)
+{
+	for (Battery& behaviour : battery)
 	{
 		if (behaviour.gameObject == nullptr)
 		{
