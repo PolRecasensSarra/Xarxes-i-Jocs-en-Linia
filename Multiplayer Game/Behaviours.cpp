@@ -42,21 +42,12 @@ void Asteroid::start()
 
 void Asteroid::update()
 {
-	//TODO(pol): canviar això ja que spawnejarà al principi de partida, ha d'spawnejar com el player
-	/*secondsSinceCreation += Time.deltaTime;
-
-	if (isServer)
-	{
-		const float neutralTimeSeconds = 0.1f;
-		if (secondsSinceCreation > neutralTimeSeconds && gameObject->collider == nullptr) {
-			gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
-		}
-	}*/
+	
 }
 
 void Asteroid::destroy()
 {
-	//TODO(pol): cridar aquesta funció en el oncollision del laser i nau
+	
 }
 
 void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
@@ -75,7 +66,7 @@ void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 			explosion->angle = 365.0f * Random.next();
 
 			explosion->sprite = App->modRender->addSprite(explosion);
-			explosion->sprite->texture = App->modResources->explosion1;
+			explosion->sprite->texture = App->modResources->explosion2;
 			explosion->sprite->order = 100;
 
 			explosion->animation = App->modRender->addAnimation(explosion);
@@ -149,6 +140,7 @@ void Spaceship::onInput(const InputController &input)
 
 	if (input.leftShoulder == ButtonState::Press)
 	{
+		//TODO(pol): canviar això d'aquí a un random generator d'asteroides al principi de la partida
 		if (isServer)
 		{
 			GameObject* asteroid = NetworkInstantiate();
