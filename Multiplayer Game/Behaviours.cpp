@@ -61,6 +61,10 @@ void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 			NetworkDestroy(c2.gameObject); // Destroy the laser
 			NetworkDestroy(gameObject);
 
+			if (c2.gameObject->behaviour->GetIfPowerUp())
+				c2.gameObject->behaviour->SetIfPowerUp(false);
+
+
 			GameObject* explosion = NetworkInstantiate();
 			explosion->position = gameObject->position;
 			explosion->size = vec2{ gameObject->size.x, gameObject->size.y };
