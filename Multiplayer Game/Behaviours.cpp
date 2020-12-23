@@ -159,12 +159,18 @@ void Spaceship::onInput(const InputController &input)
 
 			asteroid->sprite = App->modRender->addSprite(asteroid);
 			asteroid->sprite->order = 3;
-			asteroid->sprite->texture = App->modResources->asteroid2;
+			int test = (rand() % 2);
+			if (test == 1)
+				asteroid->sprite->texture = App->modResources->asteroid2;
+			
+			else
+				asteroid->sprite->texture = App->modResources->asteroid1;
+			
 
 			Asteroid* asteroidBehaviour = App->modBehaviour->addAsteroid(asteroid);
 			asteroidBehaviour->isServer = isServer;
 
-			/*laser->tag = gameObject->tag;*/
+			
 		}
 	}
 }
