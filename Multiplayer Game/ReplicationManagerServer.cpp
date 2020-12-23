@@ -76,6 +76,9 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 					case 2: { //Laser
 						packet << type;
 						break; }
+					case 3: { //Asteroid
+						packet << type;
+						break; }
 					}
 
 				}

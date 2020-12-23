@@ -88,6 +88,10 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					case 2: { //Laser
 						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Laser, gameObject);
 						break; }
+
+					case 3: { //Asteroid
+						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
+						break; }
 					}
 
 					

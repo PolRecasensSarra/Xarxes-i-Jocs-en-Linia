@@ -32,6 +32,7 @@ enum class BehaviourType : uint8
 	None = 0,
 	Spaceship = 1,
 	Laser = 2,
+	Asteroid = 3,
 };
 
 
@@ -46,6 +47,20 @@ struct Laser : public Behaviour
 	void update() override;
 };
 
+struct Asteroid : public Behaviour
+{
+	float secondsSinceCreation = 0.0f;
+
+	BehaviourType type() const override { return BehaviourType::Asteroid; }
+
+	void start() override;
+
+	void update() override;
+
+	void destroy() override;
+
+	void onCollisionTriggered(Collider& c1, Collider& c2) override;
+};
 
 struct Spaceship : public Behaviour
 {

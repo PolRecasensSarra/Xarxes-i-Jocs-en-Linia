@@ -31,7 +31,64 @@ void Laser::update()
 	}
 }
 
+void Asteroid::start()
+{
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
 
+	// Create collider
+	gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
+	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
+}
+
+void Asteroid::update()
+{
+	//TODO(pol): canviar això ja que spawnejarà al principi de partida, ha d'spawnejar com el player
+	/*secondsSinceCreation += Time.deltaTime;
+
+	if (isServer)
+	{
+		const float neutralTimeSeconds = 0.1f;
+		if (secondsSinceCreation > neutralTimeSeconds && gameObject->collider == nullptr) {
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
+		}
+	}*/
+}
+
+void Asteroid::destroy()
+{
+	//TODO(pol): cridar aquesta funció en el oncollision del laser i nau
+}
+
+void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
+{
+	
+	if (c2.type == ColliderType::Laser)
+	{
+		if (isServer)
+		{
+			NetworkDestroy(c2.gameObject); // Destroy the laser
+			NetworkDestroy(gameObject);
+
+			GameObject* explosion = NetworkInstantiate();
+			explosion->position = gameObject->position;
+			explosion->size = vec2{ gameObject->size.x, gameObject->size.y };
+			explosion->angle = 365.0f * Random.next();
+
+			explosion->sprite = App->modRender->addSprite(explosion);
+			explosion->sprite->texture = App->modResources->explosion1;
+			explosion->sprite->order = 100;
+
+			explosion->animation = App->modRender->addAnimation(explosion);
+			explosion->animation->clip = App->modResources->explosionClip;
+			explosion->animation->type = AnimationType::Explosion;
+
+			NetworkDestroy(explosion, 2.0f);
+
+			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+
+		}
+	}
+}
 
 
 
@@ -87,6 +144,27 @@ void Spaceship::onInput(const InputController &input)
 			laserBehaviour->isServer = isServer;
 
 			laser->tag = gameObject->tag;
+		}
+	}
+
+	if (input.leftShoulder == ButtonState::Press)
+	{
+		if (isServer)
+		{
+			GameObject* asteroid = NetworkInstantiate();
+
+			asteroid->position = gameObject->position + vec2{150.0, 100.0};
+			asteroid->angle = gameObject->angle;
+			asteroid->size = vec2{ 120.0f,120.0f };
+
+			asteroid->sprite = App->modRender->addSprite(asteroid);
+			asteroid->sprite->order = 3;
+			asteroid->sprite->texture = App->modResources->asteroid2;
+
+			Asteroid* asteroidBehaviour = App->modBehaviour->addAsteroid(asteroid);
+			asteroidBehaviour->isServer = isServer;
+
+			/*laser->tag = gameObject->tag;*/
 		}
 	}
 }
@@ -152,6 +230,33 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 		}
 	}
+	else if (c2.type == ColliderType::Asteroid)
+	{
+		// Centered big explosion
+		float size = 250.0f + 100.0f * Random.next();
+		vec2 position = gameObject->position;
+
+		NetworkDestroy(gameObject);
+
+		GameObject* explosion = NetworkInstantiate();
+		explosion->position = position;
+		explosion->size = vec2{ size, size };
+		explosion->angle = 365.0f * Random.next();
+
+		explosion->sprite = App->modRender->addSprite(explosion);
+		explosion->sprite->texture = App->modResources->explosion1;
+		explosion->sprite->order = 100;
+
+		explosion->animation = App->modRender->addAnimation(explosion);
+		explosion->animation->clip = App->modResources->explosionClip;
+		explosion->animation->type = AnimationType::Explosion;
+
+		NetworkDestroy(explosion, 2.0f);
+
+		// NOTE(jesus): Only played in the server right now...
+		// You need to somehow make this happen in clients
+		App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+	}
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
@@ -163,3 +268,5 @@ void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
 }
+
+
