@@ -91,6 +91,8 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 
 					case 2: { //Laser
 						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::Laser, gameObject);
+						if (gameObject->behaviour != nullptr)
+							gameObject->behaviour->read(packet);
 						break; }
 
 					case 3: { //Asteroid
