@@ -253,7 +253,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				}
 				else
 				{
-					hitPoints -= 3;
+					hitPoints = hitPoints - 3;
 					gameObject->behaviour->SetIfPowerUp(false);
 				}
 				
@@ -325,9 +325,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the battery
 			powerUp = true;
-			//TODO(pol): ficar aquí un bolea de que tenim el pickup
-
-			//TODO(pol): posar aquí l'audio de pickup App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			
+			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
 }

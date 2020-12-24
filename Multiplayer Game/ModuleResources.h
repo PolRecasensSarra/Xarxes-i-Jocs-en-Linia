@@ -25,6 +25,8 @@ public:
 
 	AudioClip *audioClipLaser = nullptr;
 	AudioClip *audioClipExplosion = nullptr;
+	AudioClip *audioPowerUp = nullptr;
+	AudioClip *audioShield = nullptr;
 
 	bool finishedLoading = false;
 

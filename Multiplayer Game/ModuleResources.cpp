@@ -38,12 +38,14 @@ bool ModuleResources::init()
 	loadTextureAsync("laser2.png",            &laser2, ++id);
 	loadTextureAsync("explosion1.png",       &explosion1, ++id);
 	loadTextureAsync("explosion2.png",       &explosion2, ++id);
-	loadTextureAsync("battery.png",       &battery, ++id);
+	loadTextureAsync("powerUp.png",       &battery, ++id);
 #endif
 
 	audioClipLaser = App->modSound->loadAudioClip("laser.wav");
 	audioClipExplosion = App->modSound->loadAudioClip("explosion.wav");
-	//App->modSound->playAudioClip(audioClipExplosion);
+	audioPowerUp = App->modSound->loadAudioClip("powerup.wav");
+	audioShield = App->modSound->loadAudioClip("shield.wav");
+
 
 	return true;
 }
