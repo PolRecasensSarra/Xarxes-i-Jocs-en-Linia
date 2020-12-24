@@ -165,34 +165,91 @@ void Spaceship::onInput(const InputController &input)
 	{
 		if (isServer)
 		{
-			GameObject *laser = NetworkInstantiate();
-
-			laser->position = gameObject->position;
-			laser->angle = gameObject->angle;
-			laser->size = { 20, 60 };
-
-			laser->sprite = App->modRender->addSprite(laser);
-			laser->sprite->order = 3;
-
-			Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
-
-			if (powerUp)
+			if (!doubleBullet)
 			{
-				laser->sprite->texture = App->modResources->laser2;
-				laserBehaviour->powerUp = true;
-				powerUp = false;
+				GameObject* laser = NetworkInstantiate();
+
+				laser->position = gameObject->position;
+				laser->angle = gameObject->angle;
+				laser->size = { 20, 60 };
+
+				laser->sprite = App->modRender->addSprite(laser);
+				laser->sprite->order = 3;
+
+				Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
+
+				if (powerUp)
+				{
+					laser->sprite->texture = App->modResources->laser2;
+					laserBehaviour->powerUp = true;
+					powerUp = false;
+				}
+				else
+				{
+					laser->sprite->texture = App->modResources->laser;
+					laserBehaviour->powerUp = false;
+				}
+
+
+				laserBehaviour->isServer = isServer;
+
+
+				laser->tag = gameObject->tag;
 			}
 			else
 			{
-				laser->sprite->texture = App->modResources->laser;
-				laserBehaviour->powerUp = false;
+				doubleBullet = false;
+
+				GameObject* laser = NetworkInstantiate();
+
+				laser->position = gameObject->position;
+				laser->angle = gameObject->angle - 5.0f;
+				laser->size = { 20, 60 };
+
+				laser->sprite = App->modRender->addSprite(laser);
+				laser->sprite->order = 3;
+
+				Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
+
+				//--------------------------
+				GameObject* laser2 = NetworkInstantiate();
+
+				laser2->position = gameObject->position;
+				laser2->angle = gameObject->angle +5.0f;
+				laser2->size = { 20, 60 };
+
+				laser2->sprite = App->modRender->addSprite(laser2);
+				laser2->sprite->order = 3;
+
+				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2);
+				//--------------------------------
+
+				if (powerUp)
+				{
+					laser->sprite->texture = App->modResources->laser2;
+					laserBehaviour->powerUp = true;
+					//---------
+					laser2->sprite->texture = App->modResources->laser2;
+					laserBehaviour2->powerUp = true;
+					//---------
+					powerUp = false;
+				}
+				else
+				{
+					laser->sprite->texture = App->modResources->laser;
+					laserBehaviour->powerUp = false;
+
+					laser2->sprite->texture = App->modResources->laser;
+					laserBehaviour2->powerUp = false;
+				}
+
+
+				laserBehaviour->isServer = isServer;
+				laser->tag = gameObject->tag;
+
+				laserBehaviour2->isServer = isServer;
+				laser2->tag = gameObject->tag;
 			}
-
-			
-			laserBehaviour->isServer = isServer;
-			
-
-			laser->tag = gameObject->tag;
 		}
 	}
 
@@ -351,7 +408,11 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		if (isServer)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the battery
-			powerUp = true;
+			if (powerUp)
+				doubleBullet = true;
+
+			else
+				powerUp = true;
 			
 			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}

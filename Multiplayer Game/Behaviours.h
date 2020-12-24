@@ -102,6 +102,7 @@ struct Spaceship : public Behaviour
 
 	GameObject *lifebar = nullptr;
 	bool powerUp = false;
+	bool doubleBullet = false;
 	bool shielded = false;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
