@@ -427,7 +427,7 @@ GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 	gameElement->position.y = (rand() % 5000) - 2500;
 
 	gameElement->angle = 0;
-	gameElement->size = vec2{ 120.0f,120.0f };
+	gameElement->size = vec2{ 0,0 };
 
 	gameElement->sprite = App->modRender->addSprite(gameElement);
 	gameElement->sprite->order = 3;
@@ -437,6 +437,8 @@ GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 	{
 	case BehaviourType::Asteroid:
 	{
+		gameElement->size = vec2{ 120.0f,120.0f };
+
 		if (randSprite == 1)
 			gameElement->sprite->texture = App->modResources->asteroid2;
 		else
