@@ -346,15 +346,15 @@ bool ModulePlatform::preUpdate()
 					{
 						Win32ProcessKeyboardButton(&KeyboardInput.rightShoulder, IsDown);
 					}
-					else if (VKCode == VK_UP)
+					else if (VKCode == 'W')
 					{
 						Win32ProcessKeyboardButton(&KeyboardInput.actionUp, IsDown);
 					}
-					else if (VKCode == VK_LEFT)
+					else if (VKCode == VK_SPACE)
 					{
 						Win32ProcessKeyboardButton(&KeyboardInput.actionLeft, IsDown);
 					}
-					else if (VKCode == VK_DOWN)
+					else if (VKCode == 'S')
 					{
 						Win32ProcessKeyboardButton(&KeyboardInput.actionDown, IsDown);
 					}

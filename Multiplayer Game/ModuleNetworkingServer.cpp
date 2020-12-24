@@ -220,6 +220,14 @@ void ModuleNetworkingServer::onUpdate()
 {
 	if (state == ServerState::Listening)
 	{
+		currentRandomTime += Time.deltaTime;
+		if (currentRandomTime >= randomTime)
+		{
+			randomTime = 5 + (rand() % 11);
+			currentRandomTime = 0;
+			spawnAsteroid();
+		}
+
 		// Handle networked game object destructions
 		for (DelayedDestroyEntry &destroyEntry : netGameObjectsToDestroyWithDelay)
 		{
@@ -392,6 +400,27 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	return gameObject;
 }
 
+GameObject* ModuleNetworkingServer::spawnAsteroid()
+{
+	GameObject* asteroid = NetworkInstantiate();
+
+	asteroid->position.x = (rand() % 5000) - 2500;
+	asteroid->position.y = (rand() % 5000) - 2500;
+
+	asteroid->angle = 0;
+	asteroid->size = vec2{ 120.0f,120.0f };
+
+	asteroid->sprite = App->modRender->addSprite(asteroid);
+	asteroid->sprite->order = 3;
+	int randSprite = (rand() % 2);
+	if (randSprite == 1)
+		asteroid->sprite->texture = App->modResources->asteroid2;
+	else
+		asteroid->sprite->texture = App->modResources->asteroid1;
+
+	App->modBehaviour->addAsteroid(asteroid);
+	return asteroid;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Update / destruction
