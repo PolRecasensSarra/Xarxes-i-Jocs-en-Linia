@@ -16,19 +16,18 @@ bool ModuleBehaviour::update()
 	for (Asteroid& behaviour : asteroids)
 	{
 		handleBehaviourLifeCycle(&behaviour);
-
 	}
 
 	for (Battery& behaviour : battery)
 	{
 		handleBehaviourLifeCycle(&behaviour);
-
 	}
+
 	for (Shield& behaviour : shield)
 	{
 		handleBehaviourLifeCycle(&behaviour);
-
 	}
+
 	return true;
 }
 
