@@ -220,12 +220,31 @@ void ModuleNetworkingServer::onUpdate()
 {
 	if (state == ServerState::Listening)
 	{
-		currentRandomTime += Time.deltaTime;
-		if (currentRandomTime >= randomTime)
+		asteroidTime.currentRandomTime += Time.deltaTime;
+		if (asteroidTime.currentRandomTime >= asteroidTime.randomTime)
 		{
-			randomTime = 5 + (rand() % 11);
-			currentRandomTime = 0;
-			spawnAsteroid();
+			asteroidTime.randomTime = 5 + (rand() % 11);
+			asteroidTime.currentRandomTime = 0;
+			spawnGameElement(BehaviourType::Asteroid);
+		}
+
+		powerUpTime.currentRandomTime += Time.deltaTime;
+		if (powerUpTime.currentRandomTime >= powerUpTime.randomTime)
+		{
+			powerUpTime.randomTime = 5 + (rand() % 11);
+			powerUpTime.currentRandomTime = 0;
+
+			int randomPowerUp = rand() % 2;
+
+			switch (randomPowerUp)
+			{
+			case 0:
+				spawnGameElement(BehaviourType::Battery);
+				break;
+			case 1:
+				spawnGameElement(BehaviourType::Shield);
+				break;
+			}
 		}
 
 		// Handle networked game object destructions
@@ -400,26 +419,47 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	return gameObject;
 }
 
-GameObject* ModuleNetworkingServer::spawnAsteroid()
+GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 {
-	GameObject* asteroid = NetworkInstantiate();
+	GameObject* gameElement = NetworkInstantiate();
 
-	asteroid->position.x = (rand() % 5000) - 2500;
-	asteroid->position.y = (rand() % 5000) - 2500;
+	gameElement->position.x = (rand() % 5000) - 2500;
+	gameElement->position.y = (rand() % 5000) - 2500;
 
-	asteroid->angle = 0;
-	asteroid->size = vec2{ 120.0f,120.0f };
+	gameElement->angle = 0;
+	gameElement->size = vec2{ 120.0f,120.0f };
 
-	asteroid->sprite = App->modRender->addSprite(asteroid);
-	asteroid->sprite->order = 3;
+	gameElement->sprite = App->modRender->addSprite(gameElement);
+	gameElement->sprite->order = 3;
 	int randSprite = (rand() % 2);
-	if (randSprite == 1)
-		asteroid->sprite->texture = App->modResources->asteroid2;
-	else
-		asteroid->sprite->texture = App->modResources->asteroid1;
 
-	App->modBehaviour->addAsteroid(asteroid);
-	return asteroid;
+	switch (type)
+	{
+	case BehaviourType::Asteroid:
+	{
+		if (randSprite == 1)
+			gameElement->sprite->texture = App->modResources->asteroid2;
+		else
+			gameElement->sprite->texture = App->modResources->asteroid1;
+
+		App->modBehaviour->addAsteroid(gameElement);
+		break;
+	}
+	case BehaviourType::Shield:
+	{
+		gameElement->sprite->texture = App->modResources->shield;
+		App->modBehaviour->addShield(gameElement);
+		break;
+	}
+	case BehaviourType::Battery:
+	{
+		gameElement->sprite->texture = App->modResources->battery;
+		App->modBehaviour->addBattery(gameElement);
+		break;
+	}
+	}
+	
+	return gameElement;
 }
 
 //////////////////////////////////////////////////////////////////////

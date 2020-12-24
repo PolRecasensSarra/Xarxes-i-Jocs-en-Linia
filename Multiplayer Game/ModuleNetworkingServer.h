@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ModuleNetworking.h"
+#include "Behaviours.h"
 
 class ModuleNetworkingServer : public ModuleNetworking
 {
@@ -76,7 +77,7 @@ public:
 	//////////////////////////////////////////////////////////////////////
 
 	GameObject * spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle);
-	GameObject * spawnAsteroid();
+	GameObject * spawnGameElement(BehaviourType type);
 
 
 
@@ -121,8 +122,14 @@ private:
 
 	uint16 listenPort = 0;
 
-	float randomTime = 5.0f;
-	float currentRandomTime = 0.0f;
+	struct RandomTime
+	{
+		float randomTime = 5.0f;
+		float currentRandomTime = 0.0f;
+	};
+
+	RandomTime asteroidTime;
+	RandomTime powerUpTime;
 
 	// TODO(you): UDP virtual connection lab session
 
