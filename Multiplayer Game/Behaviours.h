@@ -37,6 +37,7 @@ enum class BehaviourType : uint8
 	Laser = 2,
 	Asteroid = 3,
 	Battery = 4,
+	Shield = 5,
 };
 
 
@@ -84,6 +85,16 @@ struct Battery : public Behaviour
 	void update() override;
 };
 
+struct Shield : public Behaviour
+{
+
+	BehaviourType type() const override { return BehaviourType::Shield; }
+
+	void start() override;
+
+	void update() override;
+};
+
 struct Spaceship : public Behaviour
 {
 	static const uint8 MAX_HIT_POINTS = 5;
@@ -91,6 +102,7 @@ struct Spaceship : public Behaviour
 
 	GameObject *lifebar = nullptr;
 	bool powerUp = false;
+	bool shielded = false;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 

@@ -87,7 +87,8 @@ enum class ColliderType
 	Player,
 	Laser,
 	Asteroid,
-	Battery
+	Battery,
+	Shield
 };
 
 

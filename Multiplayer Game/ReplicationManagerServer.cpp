@@ -86,6 +86,9 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 					case 4: { //Battery
 						packet << type;
 						break; }
+					case 5: { //Shield
+						packet << type;
+						break; }
 					}
 
 				}
