@@ -334,7 +334,11 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					}
 					else
 					{
-						hitPoints = hitPoints - 3;
+						if (hitPoints > 3)
+							hitPoints = hitPoints - 3;
+						else
+							hitPoints = 0;
+
 						gameObject->behaviour->SetIfPowerUp(false);
 					}
 
