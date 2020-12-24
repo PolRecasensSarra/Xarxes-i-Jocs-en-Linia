@@ -128,6 +128,15 @@ void Spaceship::onInput(const InputController &input)
 		const float advanceSpeed = 200.0f;
 		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
 
+		if (gameObject->position.x > 2500.0f)
+			gameObject->position.x = 2500.0f;
+		if (gameObject->position.x < -2500.0f)
+			gameObject->position.x = -2500.0f;
+		if (gameObject->position.y > 2500.0f)
+			gameObject->position.y = 2500.0f;
+		if (gameObject->position.y < -2500.0f)
+			gameObject->position.y = -2500.0f;
+
 		if (isServer)
 		{
 			NetworkUpdate(gameObject);
