@@ -32,6 +32,7 @@ bool ModuleResources::init()
 	loadTextureAsync("asteroid1.png",        &asteroid1, ++id);
 	loadTextureAsync("asteroid2.png",        &asteroid2, ++id);
 	loadTextureAsync("spacecraft1.png",      &spacecraft1, ++id);
+	loadTextureAsync("spacecraft1Shield.png",      &spacecraft1Shield, ++id);
 	loadTextureAsync("spacecraft2.png",      &spacecraft2, ++id);
 	loadTextureAsync("spacecraft3.png",      &spacecraft3, ++id);
 	loadTextureAsync("laser.png",            &laser, ++id);

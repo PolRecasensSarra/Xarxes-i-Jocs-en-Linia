@@ -79,6 +79,7 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 						break; }
 					case 2: { //Laser
 						packet << type;
+						gameObject->behaviour->write(packet);
 						break; }
 					case 3: { //Asteroid
 						packet << type;
