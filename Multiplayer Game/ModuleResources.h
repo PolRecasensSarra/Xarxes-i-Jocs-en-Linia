@@ -20,6 +20,7 @@ public:
 	Texture *explosion1 = nullptr;
 	Texture *explosion2 = nullptr;
 	Texture *battery = nullptr;
+	Texture *shield = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
 

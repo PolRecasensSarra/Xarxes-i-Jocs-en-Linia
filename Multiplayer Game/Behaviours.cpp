@@ -99,6 +99,19 @@ void Battery::update()
 }
 
 
+void Shield::start()
+{
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
+
+	// Create collider
+	gameObject->collider = App->modCollision->addCollider(ColliderType::Shield, gameObject);
+}
+
+void Shield::update()
+{
+}
+
+
 
 void Spaceship::start()
 {
@@ -227,6 +240,24 @@ void Spaceship::onInput(const InputController &input)
 			batteryBehaviour->isServer = isServer;
 
 
+			//------------------------------------------------------------------
+			GameObject* shield = NetworkInstantiate();
+
+			shield->position = gameObject->position + vec2{ 150.0, 120.0 };
+			shield->angle = 0.0f;
+			shield->size = vec2{ 0.0f,0.0f };
+
+			shield->sprite = App->modRender->addSprite(shield);
+			shield->sprite->order = 3;
+
+			shield->sprite->texture = App->modResources->shield;
+
+
+
+			Shield* shieldBehaviour = App->modBehaviour->addShield(shield);
+			shieldBehaviour->isServer = isServer;
+
+
 		}
 	}
 }
@@ -253,52 +284,58 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		if (isServer)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the laser
-		
-			if (hitPoints > 0)
+
+			if (!shielded)
 			{
-				if (!c2.gameObject->behaviour->GetIfPowerUp())
-				{
-					hitPoints--;
-				}
-				else
-				{
-					hitPoints = hitPoints - 3;
-					gameObject->behaviour->SetIfPowerUp(false);
-				}
 				
-				NetworkUpdate(gameObject);
+				if (hitPoints > 0)
+				{
+					if (!c2.gameObject->behaviour->GetIfPowerUp())
+					{
+						hitPoints--;
+					}
+					else
+					{
+						hitPoints = hitPoints - 3;
+						gameObject->behaviour->SetIfPowerUp(false);
+					}
+
+					NetworkUpdate(gameObject);
+				}
+
+				float size = 30 + 50.0f * Random.next();
+				vec2 position = gameObject->position + 50.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
+
+				if (hitPoints <= 0)
+				{
+					// Centered big explosion
+					size = 250.0f + 100.0f * Random.next();
+					position = gameObject->position;
+
+					NetworkDestroy(gameObject);
+				}
+
+				GameObject* explosion = NetworkInstantiate();
+				explosion->position = position;
+				explosion->size = vec2{ size, size };
+				explosion->angle = 365.0f * Random.next();
+
+				explosion->sprite = App->modRender->addSprite(explosion);
+				explosion->sprite->texture = App->modResources->explosion1;
+				explosion->sprite->order = 100;
+
+				explosion->animation = App->modRender->addAnimation(explosion);
+				explosion->animation->clip = App->modResources->explosionClip;
+				explosion->animation->type = AnimationType::Explosion;
+
+				NetworkDestroy(explosion, 2.0f);
+
+				// NOTE(jesus): Only played in the server right now...
+				// You need to somehow make this happen in clients
+				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
-
-			float size = 30 + 50.0f * Random.next();
-			vec2 position = gameObject->position + 50.0f * vec2{Random.next() - 0.5f, Random.next() - 0.5f};
-
-			if (hitPoints <= 0)
-			{
-				// Centered big explosion
-				size = 250.0f + 100.0f * Random.next();
-				position = gameObject->position;
-
-				NetworkDestroy(gameObject);
-			}
-
-			GameObject *explosion = NetworkInstantiate();
-			explosion->position = position;
-			explosion->size = vec2{ size, size };
-			explosion->angle = 365.0f * Random.next();
-
-			explosion->sprite = App->modRender->addSprite(explosion);
-			explosion->sprite->texture = App->modResources->explosion1;
-			explosion->sprite->order = 100;
-
-			explosion->animation = App->modRender->addAnimation(explosion);
-			explosion->animation->clip = App->modResources->explosionClip;
-			explosion->animation->type = AnimationType::Explosion;
-
-			NetworkDestroy(explosion, 2.0f);
-
-			// NOTE(jesus): Only played in the server right now...
-			// You need to somehow make this happen in clients
-			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			else
+				shielded = false;
 		}
 	}
 	else if (c2.type == ColliderType::Asteroid)
@@ -338,18 +375,30 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
+	else if (c2.type == ColliderType::Shield)
+	{
+		if (isServer)
+		{
+			NetworkDestroy(c2.gameObject); // Destroy the shield
+			shielded = true;
+
+			App->modSound->playAudioClip(App->modResources->audioShield);
+		}
+	}
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
 {
 	packet << hitPoints;
 	packet << powerUp;
+	packet << shielded;
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
 	packet >> powerUp;
+	packet >> shielded;
 }
 
 bool Laser::GetIfPowerUp()

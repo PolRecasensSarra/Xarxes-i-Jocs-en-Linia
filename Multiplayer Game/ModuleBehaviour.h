@@ -13,6 +13,8 @@ public:
 	Laser     * addLaser(GameObject *parentGameObject);
 	Asteroid     * addAsteroid(GameObject *parentGameObject);
 	Battery     * addBattery(GameObject *parentGameObject);
+	Shield     * addShield(GameObject *parentGameObject);
+
 
 private:
 
@@ -22,5 +24,6 @@ private:
 	Laser lasers[MAX_GAME_OBJECTS];
 	Asteroid asteroids[MAX_GAME_OBJECTS];
 	Battery battery[MAX_GAME_OBJECTS];
+	Shield shield[MAX_GAME_OBJECTS];
 };
 

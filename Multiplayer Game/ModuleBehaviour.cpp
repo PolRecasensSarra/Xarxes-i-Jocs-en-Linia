@@ -24,6 +24,11 @@ bool ModuleBehaviour::update()
 		handleBehaviourLifeCycle(&behaviour);
 
 	}
+	for (Shield& behaviour : shield)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+
+	}
 	return true;
 }
 
@@ -39,6 +44,8 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 		return addAsteroid(parentGameObject);
 	case BehaviourType::Battery:
 		return addBattery(parentGameObject);
+	case BehaviourType::Shield:
+		return addShield(parentGameObject);
 	default:
 		return nullptr;
 	}
@@ -98,6 +105,23 @@ Asteroid* ModuleBehaviour::addAsteroid(GameObject* parentGameObject)
 Battery* ModuleBehaviour::addBattery(GameObject* parentGameObject)
 {
 	for (Battery& behaviour : battery)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
+
+	ASSERT(false);
+	return nullptr;
+}
+
+Shield* ModuleBehaviour::addShield(GameObject* parentGameObject)
+{
+	for (Shield& behaviour : shield)
 	{
 		if (behaviour.gameObject == nullptr)
 		{
