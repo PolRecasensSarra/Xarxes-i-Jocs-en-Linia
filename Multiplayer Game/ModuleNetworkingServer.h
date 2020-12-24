@@ -76,6 +76,7 @@ public:
 	//////////////////////////////////////////////////////////////////////
 
 	GameObject * spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle);
+	GameObject * spawnAsteroid();
 
 
 
@@ -120,7 +121,8 @@ private:
 
 	uint16 listenPort = 0;
 
-
+	float randomTime = 5.0f;
+	float currentRandomTime = 0.0f;
 
 	// TODO(you): UDP virtual connection lab session
 

@@ -43,7 +43,12 @@ void Asteroid::start()
 
 void Asteroid::update()
 {
-	
+	gameObject->angle += Time.deltaTime * 15;
+
+	if (isServer)
+	{
+		NetworkUpdate(gameObject);
+	}
 }
 
 void Asteroid::destroy()
@@ -136,7 +141,7 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.actionDown == ButtonState::Pressed)
+	if (input.actionUp == ButtonState::Pressed)
 	{
 		const float advanceSpeed = 200.0f;
 		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
@@ -193,30 +198,6 @@ void Spaceship::onInput(const InputController &input)
 
 	if (input.leftShoulder == ButtonState::Press)
 	{
-		//TODO(pol): canviar això d'aquí a un random generator d'asteroides al principi de la partida
-		if (isServer)
-		{
-			GameObject* asteroid = NetworkInstantiate();
-
-			asteroid->position = gameObject->position + vec2{150.0, 100.0};
-			asteroid->angle = gameObject->angle;
-			asteroid->size = vec2{ 120.0f,120.0f };
-
-			asteroid->sprite = App->modRender->addSprite(asteroid);
-			asteroid->sprite->order = 3;
-			int test = (rand() % 2);
-			if (test == 1)
-				asteroid->sprite->texture = App->modResources->asteroid2;
-			
-			else
-				asteroid->sprite->texture = App->modResources->asteroid1;
-			
-
-			Asteroid* asteroidBehaviour = App->modBehaviour->addAsteroid(asteroid);
-			asteroidBehaviour->isServer = isServer;
-
-			
-		}
 	}
 	if (input.rightShoulder == ButtonState::Press)
 	{
