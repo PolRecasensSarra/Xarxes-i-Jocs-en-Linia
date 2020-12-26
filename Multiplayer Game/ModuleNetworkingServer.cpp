@@ -1,5 +1,5 @@
 #include "ModuleNetworkingServer.h"
-
+#include <cmath>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -417,31 +417,26 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	case 1:
 		gameObject->sprite->texture = App->modResources->spacecraft2;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
-		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft2Shield;
 		break;
 	case 2:
 		gameObject->sprite->texture = App->modResources->spacecraft3;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
-		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft3Shield;
 		break;
 	case 3:
 		gameObject->sprite->texture = App->modResources->spacecraft4;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
-		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft4Shield;
 		break;
 	case 4:
 		gameObject->sprite->texture = App->modResources->spacecraft5;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
-		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft5Shield;
 		break;
 	case 5:
 		gameObject->sprite->texture = App->modResources->spacecraft6;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
-		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft6Shield;
 		break;
 	}
@@ -457,12 +452,25 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 
 GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 {
-	static int times_entered = 0;
-	LOG("%i", ++times_entered);
 	GameObject* gameElement = NetworkInstantiate();
 
 	gameElement->position.x = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
 	gameElement->position.y = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
+
+	if (type == BehaviourType::Asteroid)
+	{
+		int i = 0;
+		while (App->modBehaviour->spaceships[i].gameObject != nullptr)
+		{
+			while ((abs(App->modBehaviour->spaceships[i].gameObject->position.x - gameElement->position.x) < 100)
+				&& (abs(App->modBehaviour->spaceships[i].gameObject->position.y - gameElement->position.y) < 100))
+			{
+				gameElement->position.x = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
+				gameElement->position.y = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
+			}
+			++i;
+		}
+	}
 
 	gameElement->angle = 0;
 	gameElement->size = vec2{ 0,0 };
