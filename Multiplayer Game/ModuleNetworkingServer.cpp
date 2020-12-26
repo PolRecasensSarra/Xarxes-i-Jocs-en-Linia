@@ -440,7 +440,7 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft6Shield;
 		break;
 	}
-
+	spaceshipBehaviour->SetSpaceshipType(spaceshipType);
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
