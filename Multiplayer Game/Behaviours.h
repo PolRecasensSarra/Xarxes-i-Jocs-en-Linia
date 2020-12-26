@@ -111,7 +111,7 @@ struct Shield : public Behaviour
 
 struct Spaceship : public Behaviour
 {
-	static const uint8 MAX_HIT_POINTS = 5;
+	static const uint8 MAX_HIT_POINTS = 10;
 	uint8 hitPoints = MAX_HIT_POINTS;
 
 	GameObject *lifebar = nullptr;
