@@ -407,6 +407,7 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 		gameObject->sprite->texture = App->modResources->spacecraft3;
 	}
 
+
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
@@ -415,6 +416,7 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	Spaceship * spaceshipBehaviour = App->modBehaviour->addSpaceship(gameObject);
 	gameObject->behaviour = spaceshipBehaviour;
 	gameObject->behaviour->isServer = true;
+	spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 
 	return gameObject;
 }

@@ -104,6 +104,7 @@ struct Spaceship : public Behaviour
 	bool powerUp = false;
 	bool doubleBullet = false;
 	bool shielded = false;
+	Texture* original_texture = nullptr;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
@@ -120,6 +121,5 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet) override;
-
 
 };

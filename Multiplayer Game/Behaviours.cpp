@@ -294,8 +294,6 @@ void Spaceship::onInput(const InputController &input)
 
 			Shield* shieldBehaviour = App->modBehaviour->addShield(shield);
 			shieldBehaviour->isServer = isServer;
-
-
 		}
 	}
 }
@@ -325,7 +323,6 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			if (!shielded)
 			{
-				
 				if (hitPoints > 0)
 				{
 					if (!c2.gameObject->behaviour->GetIfPowerUp())
@@ -377,35 +374,46 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 			else
+			{
 				shielded = false;
+				gameObject->sprite->texture = original_texture;
+			}
 		}
 	}
 	else if (c2.type == ColliderType::Asteroid)
 	{
-		// Centered big explosion
-		float size = 250.0f + 100.0f * Random.next();
-		vec2 position = gameObject->position;
+		if (!shielded)
+		{
+			// Centered big explosion
+			float size = 250.0f + 100.0f * Random.next();
+			vec2 position = gameObject->position;
 
-		NetworkDestroy(gameObject);
+			NetworkDestroy(gameObject);
 
-		GameObject* explosion = NetworkInstantiate();
-		explosion->position = position;
-		explosion->size = vec2{ size, size };
-		explosion->angle = 365.0f * Random.next();
+			GameObject* explosion = NetworkInstantiate();
+			explosion->position = position;
+			explosion->size = vec2{ size, size };
+			explosion->angle = 365.0f * Random.next();
 
-		explosion->sprite = App->modRender->addSprite(explosion);
-		explosion->sprite->texture = App->modResources->explosion1;
-		explosion->sprite->order = 100;
+			explosion->sprite = App->modRender->addSprite(explosion);
+			explosion->sprite->texture = App->modResources->explosion1;
+			explosion->sprite->order = 100;
 
-		explosion->animation = App->modRender->addAnimation(explosion);
-		explosion->animation->clip = App->modResources->explosionClip;
-		explosion->animation->type = AnimationType::Explosion;
+			explosion->animation = App->modRender->addAnimation(explosion);
+			explosion->animation->clip = App->modResources->explosionClip;
+			explosion->animation->type = AnimationType::Explosion;
 
-		NetworkDestroy(explosion, 2.0f);
+			NetworkDestroy(explosion, 2.0f);
 
-		// NOTE(jesus): Only played in the server right now...
-		// You need to somehow make this happen in clients
-		App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			// NOTE(jesus): Only played in the server right now...
+			// You need to somehow make this happen in clients
+			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+		}
+		else
+		{
+			shielded = false;
+			gameObject->sprite->texture = original_texture;
+		}
 	}
 	else if (c2.type == ColliderType::Battery)
 	{
@@ -414,7 +422,6 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			NetworkDestroy(c2.gameObject); // Destroy the battery
 			if (powerUp)
 				doubleBullet = true;
-
 			else
 				powerUp = true;
 			
@@ -427,6 +434,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the shield
 			shielded = true;
+			gameObject->sprite->texture = App->modResources->spacecraft1Shield;
 
 			App->modSound->playAudioClip(App->modResources->audioShield);
 		}
