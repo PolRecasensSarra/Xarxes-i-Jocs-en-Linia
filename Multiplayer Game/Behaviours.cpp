@@ -139,7 +139,7 @@ void Spaceship::start()
 
 void Spaceship::onInput(const InputController &input)
 {
-	if (input.horizontalAxis != 0.0f)
+	if (input.horizontalAxis != 0.0f && !is_respawning)
 	{
 		const float rotateSpeed = 180.0f;
 		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;
@@ -150,7 +150,7 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.actionUp == ButtonState::Pressed)
+	if (input.actionUp == ButtonState::Pressed && !is_respawning)
 	{
 		const float advanceSpeed = 200.0f;
 		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
@@ -170,7 +170,7 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.actionLeft == ButtonState::Press)
+	if (input.actionLeft == ButtonState::Press && !is_respawning)
 	{
 		if (isServer)
 		{
@@ -262,10 +262,10 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.leftShoulder == ButtonState::Press)
+	if (input.leftShoulder == ButtonState::Press && !is_respawning)
 	{
 	}
-	if (input.rightShoulder == ButtonState::Press)
+	if (input.rightShoulder == ButtonState::Press && !is_respawning)
 	{
 		//TODO(pol): canviar això d'aquí a un random generator de bateries al principi de la partida
 		if (isServer)
@@ -344,6 +344,18 @@ void Spaceship::update()
 			invulnerable_time = 1;
 		}
 	}
+	if (is_respawning)
+	{
+		respawn_time -= Time.deltaTime;
+
+		if (respawn_time <= 0.0f)
+		{
+			is_respawning = false;
+			respawn_time = 1.0f;
+			Respawn();
+		}
+
+	}
 }
 
 void Spaceship::destroy()
@@ -359,7 +371,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the laser
 
-			if (!shielded && !is_invulnerable)
+			if (!shielded && !is_invulnerable && !is_respawning)
 			{
 				if (hitPoints > 0)
 				{
@@ -389,11 +401,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					size = 250.0f + 100.0f * Random.next();
 					position = gameObject->position;
 
-					//TODO(pol): Respawnejar player
-					
-
-					//NetworkDestroy(gameObject);
-					Respawn();
+					is_respawning = true;
 					
 
 					
@@ -430,14 +438,15 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 	}
 	else if (c2.type == ColliderType::Asteroid)
 	{
-		if (!shielded && !is_invulnerable)
+		if (!shielded && !is_invulnerable && !is_respawning)
 		{
 			// Centered big explosion
 			float size = 250.0f + 100.0f * Random.next();
 			vec2 position = gameObject->position;
 
-			//NetworkDestroy(gameObject);
-			Respawn();
+			is_respawning = true;
+			hitPoints = 0;
+			NetworkUpdate(gameObject);
 
 			GameObject* explosion = NetworkInstantiate();
 			explosion->position = position;

@@ -117,6 +117,8 @@ struct Spaceship : public Behaviour
 	GameObject *lifebar = nullptr;
 	bool is_invulnerable = false;
 	float invulnerable_time = 1.0f;
+	float respawn_time = 1.0f;
+	bool is_respawning = false;
 	bool powerUp = false;
 	bool doubleBullet = false;
 	bool shielded = false;
