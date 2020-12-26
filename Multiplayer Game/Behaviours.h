@@ -112,6 +112,8 @@ struct Spaceship : public Behaviour
 	uint8 hitPoints = MAX_HIT_POINTS;
 
 	GameObject *lifebar = nullptr;
+	bool is_invulnerable = false;
+	float invulnerable_time = 1.0f;
 	bool powerUp = false;
 	bool doubleBullet = false;
 	bool shielded = false;

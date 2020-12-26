@@ -333,6 +333,17 @@ void Spaceship::update()
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
 	lifebar->size = vec2{ lifeRatio * 80.0f, 5.0f };
 	lifebar->sprite->color = lerp(colorDead, colorAlive, lifeRatio);
+
+	if (is_invulnerable)
+	{
+		invulnerable_time -= Time.deltaTime;
+
+		if (invulnerable_time <= 0)
+		{
+			is_invulnerable = false;
+			invulnerable_time = 1;
+		}
+	}
 }
 
 void Spaceship::destroy()
@@ -348,7 +359,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the laser
 
-			if (!shielded)
+			if (!shielded && !is_invulnerable)
 			{
 				if (hitPoints > 0)
 				{
@@ -403,6 +414,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			else
 			{
 				shielded = false;
+				is_invulnerable = true;
 				gameObject->sprite->texture = original_texture;
 				textureChanging = true;
 				NetworkUpdate(gameObject);
@@ -411,7 +423,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 	}
 	else if (c2.type == ColliderType::Asteroid)
 	{
-		if (!shielded)
+		if (!shielded && !is_invulnerable)
 		{
 			// Centered big explosion
 			float size = 250.0f + 100.0f * Random.next();
@@ -441,6 +453,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		else
 		{
 			shielded = false;
+			is_invulnerable = true;
 			gameObject->sprite->texture = original_texture;
 			textureChanging = true;
 		}
@@ -483,6 +496,7 @@ void Spaceship::write(OutputMemoryStream & packet)
 	packet << powerUp;
 	packet << shielded;
 	packet << doubleBullet;
+	packet << is_invulnerable;
 	packet << textureChanging;
 
 	if (textureChanging)
@@ -505,6 +519,7 @@ void Spaceship::read(const InputMemoryStream & packet)
 	packet >> powerUp;
 	packet >> shielded;
 	packet >> doubleBullet;
+	packet >> is_invulnerable;
 	packet >> textureChanging;
 
 	if (textureChanging)
@@ -531,8 +546,6 @@ void Spaceship::read(const InputMemoryStream & packet)
 		}
 		textureChanging = false;
 	}
-
-
 }
 
 bool Laser::GetIfPowerUp()
