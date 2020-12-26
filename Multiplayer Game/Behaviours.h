@@ -115,7 +115,9 @@ struct Spaceship : public Behaviour
 	bool powerUp = false;
 	bool doubleBullet = false;
 	bool shielded = false;
+	bool textureChanging = false;
 	Texture* original_texture = nullptr;
+	Texture* shielded_texture = nullptr;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 

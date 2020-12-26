@@ -408,6 +408,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			{
 				shielded = false;
 				gameObject->sprite->texture = original_texture;
+				textureChanging = true;
+				NetworkUpdate(gameObject);
 			}
 		}
 	}
@@ -444,6 +446,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			shielded = false;
 			gameObject->sprite->texture = original_texture;
+			textureChanging = true;
 		}
 	}
 	else if (c2.type == ColliderType::Battery)
@@ -462,8 +465,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the shield
 			shielded = true;
-			gameObject->sprite->texture = App->modResources->spacecraft1Shield;
-
+			gameObject->sprite->texture = shielded_texture;
+			textureChanging = true;
 			App->modSound->playAudioClip(App->modResources->audioShield);
 		}
 	}
@@ -484,6 +487,22 @@ void Spaceship::write(OutputMemoryStream & packet)
 	packet << powerUp;
 	packet << shielded;
 	packet << doubleBullet;
+	packet << textureChanging;
+
+	if (textureChanging)
+	{
+		if (gameObject->sprite != nullptr && gameObject->sprite->texture != nullptr)
+		{
+			packet << gameObject->sprite->texture->id;
+			packet.Write(gameObject->sprite->color);
+			packet << gameObject->sprite->order;
+			packet.Write(gameObject->sprite->pivot);
+		}
+		else
+			packet << -1;
+
+	
+	}
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
@@ -492,6 +511,34 @@ void Spaceship::read(const InputMemoryStream & packet)
 	packet >> powerUp;
 	packet >> shielded;
 	packet >> doubleBullet;
+	packet >> textureChanging;
+
+	if (textureChanging)
+	{
+		//Textures
+
+		int tex_id;
+		packet >> tex_id;
+
+		if (tex_id != -1)
+		{
+			if (gameObject->sprite == nullptr)
+				gameObject->sprite = App->modRender->addSprite(gameObject);
+
+			if (gameObject->sprite != nullptr)
+			{
+				gameObject->sprite->texture = App->modTextures->getTextureByID(tex_id);
+
+				packet.Read(gameObject->sprite->color);
+				packet >> gameObject->sprite->order;
+				packet.Read(gameObject->sprite->pivot);
+
+			}
+		}
+		textureChanging = false;
+	}
+
+
 }
 
 bool Laser::GetIfPowerUp()

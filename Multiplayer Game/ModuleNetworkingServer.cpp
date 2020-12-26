@@ -394,26 +394,49 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	gameObject->size = { 100, 100 };
 	gameObject->angle = initialAngle;
 
+	// Create behaviour
+	Spaceship* spaceshipBehaviour = App->modBehaviour->addSpaceship(gameObject);
+	gameObject->behaviour = spaceshipBehaviour;
+	gameObject->behaviour->isServer = true;
+	
+
 	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
 	gameObject->sprite->order = 5;
 	if (spaceshipType == 0) {
 		gameObject->sprite->texture = App->modResources->spacecraft1;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft1Shield;
 	}
 	else if (spaceshipType == 1) {
 		gameObject->sprite->texture = App->modResources->spacecraft2;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		//TODO(pol): put here the shield texture
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft2Shield;
 	}
 	else if (spaceshipType == 2) {
 		gameObject->sprite->texture = App->modResources->spacecraft3;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		//TODO(pol): put here the shield texture
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft3Shield;
 	}
 	else if (spaceshipType == 3) {
 		gameObject->sprite->texture = App->modResources->spacecraft4;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		//TODO(pol): put here the shield texture
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft4Shield;
 	}
 	else if (spaceshipType == 4) {
 		gameObject->sprite->texture = App->modResources->spacecraft5;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		//TODO(pol): put here the shield texture
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft5Shield;
 	}
 	else if (spaceshipType == 5) {
 		gameObject->sprite->texture = App->modResources->spacecraft6;
+		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+		//TODO(pol): put here the shield texture
+		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft6Shield;
 	}
 
 
@@ -421,11 +444,7 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
 
-	// Create behaviour
-	Spaceship * spaceshipBehaviour = App->modBehaviour->addSpaceship(gameObject);
-	gameObject->behaviour = spaceshipBehaviour;
-	gameObject->behaviour->isServer = true;
-	spaceshipBehaviour->original_texture = gameObject->sprite->texture;
+
 
 	return gameObject;
 }
