@@ -389,7 +389,14 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					size = 250.0f + 100.0f * Random.next();
 					position = gameObject->position;
 
-					NetworkDestroy(gameObject);
+					//TODO(pol): Respawnejar player
+					
+
+					//NetworkDestroy(gameObject);
+					Respawn();
+					
+
+					
 				}
 
 				GameObject* explosion = NetworkInstantiate();
@@ -545,6 +552,36 @@ void Spaceship::read(const InputMemoryStream & packet)
 			}
 		}
 		textureChanging = false;
+	}
+}
+
+int Spaceship::GetSpaceshipType()
+{
+	return spaceshipType;
+}
+
+void Spaceship::SetSpaceshipType(int type)
+{
+	spaceshipType = type;
+}
+
+void Spaceship::Respawn()
+{
+	hitPoints = MAX_HIT_POINTS;
+	powerUp = false;
+	shielded = false;
+	doubleBullet = false;
+	is_invulnerable = true;
+
+	vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
+	float initialAngle = 360.0f * Random.next();
+
+	gameObject->position = initialPosition;
+	gameObject->angle = initialAngle;
+
+	if (isServer)
+	{
+		NetworkUpdate(gameObject);
 	}
 }
 

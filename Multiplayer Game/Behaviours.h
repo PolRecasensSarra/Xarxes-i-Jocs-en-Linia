@@ -27,6 +27,9 @@ struct Behaviour
 
 	virtual bool GetIfPowerUp() { return false; }
 	virtual void SetIfPowerUp(bool powerup){}
+
+	virtual int GetSpaceshipType() { return 0; }
+	virtual void SetSpaceshipType(int type) {}
 };
 
 
@@ -121,6 +124,8 @@ struct Spaceship : public Behaviour
 	Texture* original_texture = nullptr;
 	Texture* shielded_texture = nullptr;
 
+	int spaceshipType = -1;
+
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
 	void start() override;
@@ -136,5 +141,10 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet) override;
+
+	int GetSpaceshipType() override;
+	void SetSpaceshipType(int type) override;
+
+	void Respawn();
 
 };
