@@ -122,14 +122,20 @@ private:
 
 	uint16 listenPort = 0;
 
+
+	// Random Spawns
 	struct RandomTime
 	{
+		float min_time_between_spawns = 3.0f;
+		int max_difference_time = 7.0f;
 		float randomTime = 5.0f;
 		float currentRandomTime = 0.0f;
 	};
 
 	RandomTime asteroidTime;
 	RandomTime powerUpTime;
+
+	int max_bounds_spawn = 2000;
 
 	// TODO(you): UDP virtual connection lab session
 

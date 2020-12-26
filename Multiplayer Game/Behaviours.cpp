@@ -58,7 +58,6 @@ void Asteroid::destroy()
 
 void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 {
-	
 	if (c2.type == ColliderType::Laser)
 	{
 		if (isServer)
@@ -118,18 +117,15 @@ void Shield::update()
 
 void DoubleBullet::start()
 {
-}
-
-void DoubleBullet::update()
-{
 	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
 
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::DoubleBullet, gameObject);
 }
 
-
-
+void DoubleBullet::update()
+{
+}
 
 void Spaceship::start()
 {
@@ -500,8 +496,6 @@ void Spaceship::write(OutputMemoryStream & packet)
 		}
 		else
 			packet << -1;
-
-	
 	}
 }
 

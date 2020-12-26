@@ -223,7 +223,7 @@ void ModuleNetworkingServer::onUpdate()
 		asteroidTime.currentRandomTime += Time.deltaTime;
 		if (asteroidTime.currentRandomTime >= asteroidTime.randomTime)
 		{
-			asteroidTime.randomTime = 5 + (rand() % 11);
+			asteroidTime.randomTime = asteroidTime.min_time_between_spawns + (rand() % asteroidTime.max_difference_time);
 			asteroidTime.currentRandomTime = 0;
 			spawnGameElement(BehaviourType::Asteroid);
 		}
@@ -231,10 +231,10 @@ void ModuleNetworkingServer::onUpdate()
 		powerUpTime.currentRandomTime += Time.deltaTime;
 		if (powerUpTime.currentRandomTime >= powerUpTime.randomTime)
 		{
-			powerUpTime.randomTime = 5 + (rand() % 11);
+			powerUpTime.randomTime = powerUpTime.min_time_between_spawns + (rand() % powerUpTime.max_difference_time);
 			powerUpTime.currentRandomTime = 0;
 
-			int randomPowerUp = rand() % 2;
+			int randomPowerUp = rand() % 3;
 
 			switch (randomPowerUp)
 			{
@@ -243,6 +243,9 @@ void ModuleNetworkingServer::onUpdate()
 				break;
 			case 1:
 				spawnGameElement(BehaviourType::Shield);
+				break;
+			case 2:
+				spawnGameElement(BehaviourType::DoubleBullet);
 				break;
 			}
 		}
@@ -403,42 +406,45 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
 	gameObject->sprite->order = 5;
-	if (spaceshipType == 0) {
+
+	switch (spaceshipType)
+	{
+	case 0:
 		gameObject->sprite->texture = App->modResources->spacecraft1;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft1Shield;
-	}
-	else if (spaceshipType == 1) {
+		break;
+	case 1:
 		gameObject->sprite->texture = App->modResources->spacecraft2;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft2Shield;
-	}
-	else if (spaceshipType == 2) {
+		break;
+	case 2:
 		gameObject->sprite->texture = App->modResources->spacecraft3;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft3Shield;
-	}
-	else if (spaceshipType == 3) {
+		break;
+	case 3:
 		gameObject->sprite->texture = App->modResources->spacecraft4;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft4Shield;
-	}
-	else if (spaceshipType == 4) {
+		break;
+	case 4:
 		gameObject->sprite->texture = App->modResources->spacecraft5;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft5Shield;
-	}
-	else if (spaceshipType == 5) {
+		break;
+	case 5:
 		gameObject->sprite->texture = App->modResources->spacecraft6;
 		spaceshipBehaviour->original_texture = gameObject->sprite->texture;
 		//TODO(pol): put here the shield texture
 		spaceshipBehaviour->shielded_texture = App->modResources->spacecraft6Shield;
+		break;
 	}
-
 
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
@@ -451,10 +457,12 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 
 GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 {
+	static int times_entered = 0;
+	LOG("%i", ++times_entered);
 	GameObject* gameElement = NetworkInstantiate();
 
-	gameElement->position.x = (rand() % 5000) - 2500;
-	gameElement->position.y = (rand() % 5000) - 2500;
+	gameElement->position.x = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
+	gameElement->position.y = (rand() % (max_bounds_spawn * 2)) - max_bounds_spawn;
 
 	gameElement->angle = 0;
 	gameElement->size = vec2{ 0,0 };
@@ -474,23 +482,30 @@ GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 		else
 			gameElement->sprite->texture = App->modResources->asteroid1;
 
-		App->modBehaviour->addAsteroid(gameElement);
+		gameElement->behaviour = App->modBehaviour->addAsteroid(gameElement);
 		break;
 	}
 	case BehaviourType::Shield:
 	{
 		gameElement->sprite->texture = App->modResources->shield;
-		App->modBehaviour->addShield(gameElement);
+		gameElement->behaviour = App->modBehaviour->addShield(gameElement);
 		break;
 	}
 	case BehaviourType::Battery:
 	{
 		gameElement->sprite->texture = App->modResources->battery;
-		App->modBehaviour->addBattery(gameElement);
+		gameElement->behaviour = App->modBehaviour->addBattery(gameElement);
+		break;
+	}
+	case BehaviourType::DoubleBullet:
+	{
+		gameElement->sprite->texture = App->modResources->doubleBullet;
+		gameElement->behaviour = App->modBehaviour->addDoubleBullet(gameElement);
 		break;
 	}
 	}
 	
+	gameElement->behaviour->isServer = true;
 	return gameElement;
 }
 
