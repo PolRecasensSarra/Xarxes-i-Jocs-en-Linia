@@ -118,7 +118,8 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 
 					if (tex_id != -1)
 					{
-						gameObject->sprite = App->modRender->addSprite(gameObject);
+						if (gameObject->sprite == nullptr)
+							gameObject->sprite = App->modRender->addSprite(gameObject);
 
 						if (gameObject->sprite != nullptr)
 						{
