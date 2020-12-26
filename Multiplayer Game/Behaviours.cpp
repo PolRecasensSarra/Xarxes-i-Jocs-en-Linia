@@ -436,7 +436,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			float size = 250.0f + 100.0f * Random.next();
 			vec2 position = gameObject->position;
 
-			NetworkDestroy(gameObject);
+			//NetworkDestroy(gameObject);
+			Respawn();
 
 			GameObject* explosion = NetworkInstantiate();
 			explosion->position = position;
