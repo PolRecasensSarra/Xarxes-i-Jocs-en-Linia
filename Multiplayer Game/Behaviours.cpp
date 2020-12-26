@@ -191,7 +191,7 @@ void Spaceship::onInput(const InputController &input)
 				{
 					laser->sprite->texture = App->modResources->laser2;
 					laserBehaviour->powerUp = true;
-					powerUp = false;
+					
 				}
 				else
 				{
@@ -207,7 +207,7 @@ void Spaceship::onInput(const InputController &input)
 			}
 			else
 			{
-				doubleBullet = false;
+				
 
 				GameObject* laser = NetworkInstantiate();
 
@@ -241,7 +241,7 @@ void Spaceship::onInput(const InputController &input)
 					laser2->sprite->texture = App->modResources->laser2;
 					laserBehaviour2->powerUp = true;
 					//---------
-					powerUp = false;
+					//powerUp = false;
 				}
 				else
 				{
@@ -355,6 +355,26 @@ void Spaceship::update()
 			Respawn();
 		}
 
+	}
+	if (powerUp)
+	{
+		battery_time -= Time.deltaTime;
+
+		if (battery_time <= 0.0f)
+		{
+			powerUp = false;
+			battery_time = 10.0f;
+		}
+	}
+	if (doubleBullet)
+	{
+		doubleBullet_time -= Time.deltaTime;
+
+		if (doubleBullet_time <= 0.0f)
+		{
+			doubleBullet = false;
+			doubleBullet_time = 10.0f;
+		}
 	}
 }
 
@@ -582,6 +602,8 @@ void Spaceship::Respawn()
 	shielded = false;
 	doubleBullet = false;
 	is_invulnerable = true;
+	battery_time = 5.0f;
+	doubleBullet_time = 5.0f;
 
 	vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
 	float initialAngle = 360.0f * Random.next();
