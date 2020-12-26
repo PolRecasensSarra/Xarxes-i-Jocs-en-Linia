@@ -16,12 +16,12 @@ public:
 	Shield     * addShield(GameObject *parentGameObject);
 	DoubleBullet     * addDoubleBullet(GameObject *parentGameObject);
 
+	Spaceship spaceships[MAX_CLIENTS];
 
 private:
 
 	void handleBehaviourLifeCycle(Behaviour * behaviour);
 
-	Spaceship spaceships[MAX_CLIENTS];
 	Laser lasers[MAX_GAME_OBJECTS];
 	Asteroid asteroids[MAX_GAME_OBJECTS];
 	Battery battery[MAX_GAME_OBJECTS];
