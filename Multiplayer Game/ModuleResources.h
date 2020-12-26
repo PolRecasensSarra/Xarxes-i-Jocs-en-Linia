@@ -16,6 +16,9 @@ public:
 	Texture *spacecraft1Shield = nullptr;
 	Texture *spacecraft2 = nullptr;
 	Texture *spacecraft3 = nullptr;
+	Texture *spacecraft4 = nullptr;
+	Texture *spacecraft5 = nullptr;
+	Texture *spacecraft6 = nullptr;
 	Texture *laser = nullptr;
 	Texture *laser2 = nullptr;
 	Texture *explosion1 = nullptr;
@@ -50,7 +53,7 @@ private:
 		void execute() override;
 	};
 
-	static const int MAX_RESOURCES = 16;
+	static const int MAX_RESOURCES = 32;
 	TaskLoadTexture tasks[MAX_RESOURCES] = {};
 	uint32 taskCount = 0;
 	uint32 finishedTaskCount = 0;

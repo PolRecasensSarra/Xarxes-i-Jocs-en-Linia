@@ -403,8 +403,17 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	else if (spaceshipType == 1) {
 		gameObject->sprite->texture = App->modResources->spacecraft2;
 	}
-	else {
+	else if (spaceshipType == 2) {
 		gameObject->sprite->texture = App->modResources->spacecraft3;
+	}
+	else if (spaceshipType == 3) {
+		gameObject->sprite->texture = App->modResources->spacecraft4;
+	}
+	else if (spaceshipType == 4) {
+		gameObject->sprite->texture = App->modResources->spacecraft5;
+	}
+	else if (spaceshipType == 5) {
+		gameObject->sprite->texture = App->modResources->spacecraft6;
 	}
 
 
