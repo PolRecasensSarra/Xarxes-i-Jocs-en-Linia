@@ -88,7 +88,8 @@ enum class ColliderType
 	Laser,
 	Asteroid,
 	Battery,
-	Shield
+	Shield,
+	DoubleBullet
 };
 
 

@@ -90,6 +90,9 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 					case 5: { //Shield
 						packet << type;
 						break; }
+					case 6: { //Double Bullet
+						packet << type;
+						break; }
 					}
 
 				}

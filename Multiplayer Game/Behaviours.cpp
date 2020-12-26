@@ -116,6 +116,19 @@ void Shield::update()
 {
 }
 
+void DoubleBullet::start()
+{
+}
+
+void DoubleBullet::update()
+{
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
+
+	// Create collider
+	gameObject->collider = App->modCollision->addCollider(ColliderType::DoubleBullet, gameObject);
+}
+
+
 
 
 void Spaceship::start()
@@ -294,6 +307,24 @@ void Spaceship::onInput(const InputController &input)
 
 			Shield* shieldBehaviour = App->modBehaviour->addShield(shield);
 			shieldBehaviour->isServer = isServer;
+
+
+			//------------------------------------------------------------------
+			GameObject* doubleBullet = NetworkInstantiate();
+
+			doubleBullet->position = gameObject->position + vec2{ -150.0, 120.0 };
+			doubleBullet->angle = 0.0f;
+			doubleBullet->size = vec2{ 0.0f,0.0f };
+
+			doubleBullet->sprite = App->modRender->addSprite(doubleBullet);
+			doubleBullet->sprite->order = 3;
+
+			doubleBullet->sprite->texture = App->modResources->doubleBullet;
+
+
+
+			DoubleBullet* doubleBulletBehaviour = App->modBehaviour->addDoubleBullet(doubleBullet);
+			doubleBulletBehaviour->isServer = isServer;
 		}
 	}
 }
@@ -420,10 +451,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		if (isServer)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the battery
-			if (powerUp)
-				doubleBullet = true;
-			else
-				powerUp = true;
+			powerUp = true;
 			
 			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
@@ -439,6 +467,15 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			App->modSound->playAudioClip(App->modResources->audioShield);
 		}
 	}
+	else if (c2.type == ColliderType::DoubleBullet)
+	{
+		if (isServer)
+		{
+			NetworkDestroy(c2.gameObject); // Destroy the pickup
+			doubleBullet = true;
+			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+		}
+	}
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
@@ -446,6 +483,7 @@ void Spaceship::write(OutputMemoryStream & packet)
 	packet << hitPoints;
 	packet << powerUp;
 	packet << shielded;
+	packet << doubleBullet;
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
@@ -453,6 +491,7 @@ void Spaceship::read(const InputMemoryStream & packet)
 	packet >> hitPoints;
 	packet >> powerUp;
 	packet >> shielded;
+	packet >> doubleBullet;
 }
 
 bool Laser::GetIfPowerUp()
@@ -474,5 +513,4 @@ void Laser::read(const InputMemoryStream& packet)
 {
 	packet >> powerUp;
 }
-
 

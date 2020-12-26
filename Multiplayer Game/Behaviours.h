@@ -38,6 +38,7 @@ enum class BehaviourType : uint8
 	Asteroid = 3,
 	Battery = 4,
 	Shield = 5,
+	DoubleBullet = 6,
 };
 
 
@@ -79,6 +80,16 @@ struct Battery : public Behaviour
 {
 
 	BehaviourType type() const override { return BehaviourType::Asteroid; }
+
+	void start() override;
+
+	void update() override;
+};
+
+struct DoubleBullet : public Behaviour
+{
+
+	BehaviourType type() const override { return BehaviourType::DoubleBullet; }
 
 	void start() override;
 

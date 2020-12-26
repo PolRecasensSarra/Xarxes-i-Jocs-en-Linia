@@ -28,6 +28,11 @@ bool ModuleBehaviour::update()
 		handleBehaviourLifeCycle(&behaviour);
 	}
 
+	for (DoubleBullet& behaviour : doubleBullets)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+	}
+
 	return true;
 }
 
@@ -45,6 +50,8 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 		return addBattery(parentGameObject);
 	case BehaviourType::Shield:
 		return addShield(parentGameObject);
+	case BehaviourType::DoubleBullet:
+		return addDoubleBullet(parentGameObject);
 	default:
 		return nullptr;
 	}
@@ -121,6 +128,23 @@ Battery* ModuleBehaviour::addBattery(GameObject* parentGameObject)
 Shield* ModuleBehaviour::addShield(GameObject* parentGameObject)
 {
 	for (Shield& behaviour : shield)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
+
+	ASSERT(false);
+	return nullptr;
+}
+
+DoubleBullet* ModuleBehaviour::addDoubleBullet(GameObject* parentGameObject)
+{
+	for (DoubleBullet& behaviour : doubleBullets)
 	{
 		if (behaviour.gameObject == nullptr)
 		{
