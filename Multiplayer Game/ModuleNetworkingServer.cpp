@@ -517,6 +517,17 @@ GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 	return gameElement;
 }
 
+void ModuleNetworkingServer::PlayAudioForClients(uint32 audio_id)
+{
+	for (int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		if (clientProxies[i].connected)
+		{
+			clientProxies[i].replication_manager_server.play_audio(audio_id);
+		}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 // Update / destruction
 //////////////////////////////////////////////////////////////////////

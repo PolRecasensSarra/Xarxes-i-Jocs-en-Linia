@@ -23,7 +23,27 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 			App->modGameObject->Destroy(gameObject);
 			
 		}
-		else if (action != ReplicationAction::None)
+		else if (action == ReplicationAction::PlayAudio)
+		{
+			switch (AudioType(id))
+			{
+			case AudioType::None: {
+				break; }
+			case AudioType::Laser: {
+				App->modSound->playAudioClip(App->modResources->audioClipLaser);
+				break; }
+			case AudioType::Explosion: {
+				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+				break; }
+			case AudioType::PowerUp: {
+				App->modSound->playAudioClip(App->modResources->audioPowerUp);
+				break; }
+			case AudioType::Shield: {
+				App->modSound->playAudioClip(App->modResources->audioShield);
+				break; }
+			}
+		}
+		else if (action != ReplicationAction::None && action != ReplicationAction::PlayAudio)
 		{
 			GameObject* gameObject = nullptr;
 

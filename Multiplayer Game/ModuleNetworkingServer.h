@@ -78,7 +78,7 @@ public:
 
 	GameObject * spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle);
 	GameObject * spawnGameElement(BehaviourType type);
-
+	void PlayAudioForClients(uint32 audio_id);
 
 
 private:
