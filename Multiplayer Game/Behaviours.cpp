@@ -359,7 +359,6 @@ void Spaceship::update()
 	if (powerUp)
 	{
 		battery_time -= Time.deltaTime;
-
 		if (battery_time <= 0.0f)
 		{
 			powerUp = false;
@@ -369,7 +368,6 @@ void Spaceship::update()
 	if (doubleBullet)
 	{
 		doubleBullet_time -= Time.deltaTime;
-
 		if (doubleBullet_time <= 0.0f)
 		{
 			doubleBullet = false;
@@ -425,7 +423,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 					is_respawning = true;
 					
-
+					playSound = true;
+					audioType = AudioType::Explosion;
 					
 				}
 
@@ -447,9 +446,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				// NOTE(jesus): Only played in the server right now...
 				// You need to somehow make this happen in clients
 
-				playSound = true;
-				audioType = AudioType::Explosion;
-				//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 			else
 			{
@@ -510,9 +507,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			NetworkDestroy(c2.gameObject); // Destroy the battery
 			powerUp = true;
 			
-			playSound = true;
-			audioType = AudioType::PowerUp;
-			//App->modSound->playAudioClip(App->modResources->audioPowerUp);
+			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
 	else if (c2.type == ColliderType::Shield)
@@ -524,9 +519,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			gameObject->sprite->texture = shielded_texture;
 			textureChanging = true;
 
-			playSound = true;
-			audioType = AudioType::Shield;
-			//App->modSound->playAudioClip(App->modResources->audioShield);
+			App->modSound->playAudioClip(App->modResources->audioShield);
 		}
 	}
 	else if (c2.type == ColliderType::DoubleBullet)
@@ -535,11 +528,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the pickup
 			doubleBullet = true;
-
-			playSound = true;
-			audioType = AudioType::PowerUp;
 			
-			//App->modSound->playAudioClip(App->modResources->audioPowerUp);
+			App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
 }
