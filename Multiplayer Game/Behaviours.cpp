@@ -84,7 +84,7 @@ void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 
 			NetworkDestroy(explosion, 2.0f);
 
-			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::Explosion);
 
 		}
 	}
@@ -267,7 +267,6 @@ void Spaceship::onInput(const InputController &input)
 	}
 	if (input.rightShoulder == ButtonState::Press && !is_respawning)
 	{
-		//TODO(pol): canviar això d'aquí a un random generator de bateries al principi de la partida
 		if (isServer)
 		{
 			GameObject* battery = NetworkInstantiate();
@@ -383,7 +382,7 @@ void Spaceship::destroy()
 	Destroy(lifebar);
 }
 
-void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
+void Spaceship::onCollisionTriggered(Collider& c1, Collider& c2)
 {
 	if (c2.type == ColliderType::Laser && c2.gameObject->tag != gameObject->tag)
 	{
@@ -422,10 +421,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					position = gameObject->position;
 
 					is_respawning = true;
-					
-					playSound = true;
-					audioType = AudioType::Explosion;
-					
+
 				}
 
 				GameObject* explosion = NetworkInstantiate();
@@ -445,8 +441,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 				// NOTE(jesus): Only played in the server right now...
 				// You need to somehow make this happen in clients
-
-				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+				App->modNetServer->PlayAudioForClients((uint32)AudioType::Explosion);
+				
 			}
 			else
 			{
@@ -488,9 +484,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			// NOTE(jesus): Only played in the server right now...
 			// You need to somehow make this happen in clients
 
-			playSound = true;
-			audioType = AudioType::Explosion;
-			//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::Explosion);
 		}
 		else
 		{
@@ -506,8 +500,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the battery
 			powerUp = true;
-			
-			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::PowerUp);
 		}
 	}
 	else if (c2.type == ColliderType::Shield)
@@ -518,8 +512,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			shielded = true;
 			gameObject->sprite->texture = shielded_texture;
 			textureChanging = true;
-
-			App->modSound->playAudioClip(App->modResources->audioShield);
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::Shield);
 		}
 	}
 	else if (c2.type == ColliderType::DoubleBullet)
@@ -528,8 +521,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the pickup
 			doubleBullet = true;
-			
-			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::PowerUp);
 		}
 	}
 }
@@ -554,12 +546,6 @@ void Spaceship::write(OutputMemoryStream & packet)
 		}
 		else
 			packet << -1;
-	}
-	
-	packet << playSound;
-	if (playSound)
-	{
-		packet << (int)audioType;
 	}
 	
 }
@@ -598,33 +584,6 @@ void Spaceship::read(const InputMemoryStream & packet)
 		textureChanging = false;
 	}
 
-	packet >> playSound;
-	if (playSound)
-	{
-		int type;
-		packet >> type;
-
-		switch (AudioType(type))
-		{
-		case AudioType::None: {
-			break; }
-		case AudioType::Laser: {
-			App->modSound->playAudioClip(App->modResources->audioClipLaser);
-			break; }
-		case AudioType::Explosion: {
-			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
-			break; }
-		case AudioType::PowerUp: {
-			App->modSound->playAudioClip(App->modResources->audioPowerUp);
-			break; }
-		case AudioType::Shield: {
-			App->modSound->playAudioClip(App->modResources->audioShield);
-			break; }
-		}
-		playSound = false;
-		audioType = AudioType::None;
-
-	}
 }
 
 int Spaceship::GetSpaceshipType()

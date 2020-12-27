@@ -44,7 +44,7 @@ enum class BehaviourType : uint8
 	DoubleBullet = 6,
 };
 
-enum class AudioType : int
+enum class AudioType : uint32
 {
 	None = 0,
 	Laser = 1, 

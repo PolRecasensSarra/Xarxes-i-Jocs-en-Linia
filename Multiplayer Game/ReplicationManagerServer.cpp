@@ -18,6 +18,11 @@ void ReplicationManagerServer::destroy(uint32 networkId)
 	actions[networkId] = ReplicationAction::Destroy;
 }
 
+void ReplicationManagerServer::play_audio(uint32 networkId)
+{
+	actions[networkId] = ReplicationAction::PlayAudio;
+}
+
 void ReplicationManagerServer::write(OutputMemoryStream& packet)
 {
 	packet << PROTOCOL_ID;
@@ -29,12 +34,12 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		packet << (*item).first;
 		packet << (*item).second;
 
-		if ((*item).second == ReplicationAction::Destroy)
+		if ((*item).second == ReplicationAction::Destroy || (*item).second == ReplicationAction::PlayAudio)
 		{
 			item = actions.erase(item);
 			continue;
 		}
-		else if ((*item).second != ReplicationAction::None)
+		else if ((*item).second != ReplicationAction::None && (*item).second != ReplicationAction::PlayAudio)
 		{
 			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject((*item).first);
 
