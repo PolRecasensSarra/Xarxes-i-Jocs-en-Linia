@@ -153,6 +153,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 				OutputMemoryStream packet;
 				proxy->replication_manager_server.write(packet);
+				
 				sendPacket(packet, fromAddress);
 
 

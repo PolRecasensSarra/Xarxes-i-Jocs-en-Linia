@@ -48,4 +48,7 @@ private:
     // - A list of sequence numbers pending ack
     uint32 nextExpectedSequenceNumber = 0u;
     std::list<uint32> pendingSequenceNumbers;
+
+    // TimedOut Time
+    float timedOut = 2.0f;
 };
