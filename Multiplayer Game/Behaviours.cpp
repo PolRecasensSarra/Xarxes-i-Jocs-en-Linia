@@ -444,7 +444,10 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 				// NOTE(jesus): Only played in the server right now...
 				// You need to somehow make this happen in clients
-				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+
+				playSound = true;
+				audioType = AudioType::Explosion;
+				//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 			else
 			{
@@ -485,7 +488,10 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			// NOTE(jesus): Only played in the server right now...
 			// You need to somehow make this happen in clients
-			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+
+			playSound = true;
+			audioType = AudioType::Explosion;
+			//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 		}
 		else
 		{
@@ -502,7 +508,9 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			NetworkDestroy(c2.gameObject); // Destroy the battery
 			powerUp = true;
 			
-			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+			playSound = true;
+			audioType = AudioType::PowerUp;
+			//App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
 	else if (c2.type == ColliderType::Shield)
@@ -513,7 +521,10 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			shielded = true;
 			gameObject->sprite->texture = shielded_texture;
 			textureChanging = true;
-			App->modSound->playAudioClip(App->modResources->audioShield);
+
+			playSound = true;
+			audioType = AudioType::Shield;
+			//App->modSound->playAudioClip(App->modResources->audioShield);
 		}
 	}
 	else if (c2.type == ColliderType::DoubleBullet)
@@ -522,7 +533,10 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		{
 			NetworkDestroy(c2.gameObject); // Destroy the pickup
 			doubleBullet = true;
-			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+
+			playSound = true;
+			audioType = AudioType::PowerUp;
+			//App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
 }
@@ -548,6 +562,13 @@ void Spaceship::write(OutputMemoryStream & packet)
 		else
 			packet << -1;
 	}
+	
+	packet << playSound;
+	if (playSound)
+	{
+		packet << (int)audioType;
+	}
+	
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
@@ -583,6 +604,34 @@ void Spaceship::read(const InputMemoryStream & packet)
 		}
 		textureChanging = false;
 	}
+
+	packet >> playSound;
+	if (playSound)
+	{
+		int type;
+		packet >> type;
+
+		switch (AudioType(type))
+		{
+		case AudioType::None: {
+			break; }
+		case AudioType::Laser: {
+			App->modSound->playAudioClip(App->modResources->audioClipLaser);
+			break; }
+		case AudioType::Explosion: {
+			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			break; }
+		case AudioType::PowerUp: {
+			App->modSound->playAudioClip(App->modResources->audioPowerUp);
+			break; }
+		case AudioType::Shield: {
+			App->modSound->playAudioClip(App->modResources->audioShield);
+			break; }
+		}
+
+		playSound = false;
+
+	}
 }
 
 int Spaceship::GetSpaceshipType()
@@ -602,8 +651,10 @@ void Spaceship::Respawn()
 	shielded = false;
 	doubleBullet = false;
 	is_invulnerable = true;
+	playSound = false;
 	battery_time = 5.0f;
 	doubleBullet_time = 5.0f;
+	audioType = AudioType::None;
 
 	vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
 	float initialAngle = 360.0f * Random.next();

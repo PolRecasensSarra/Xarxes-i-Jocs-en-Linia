@@ -44,6 +44,16 @@ enum class BehaviourType : uint8
 	DoubleBullet = 6,
 };
 
+enum class AudioType : int
+{
+	None = 0,
+	Laser = 1, 
+	Explosion = 2,
+	PowerUp = 3,
+	Shield = 4,
+
+};
+
 
 struct Laser : public Behaviour
 {
@@ -125,10 +135,13 @@ struct Spaceship : public Behaviour
 	bool doubleBullet = false;
 	bool shielded = false;
 	bool textureChanging = false;
+	bool playSound = false;
 	Texture* original_texture = nullptr;
 	Texture* shielded_texture = nullptr;
 
 	int spaceshipType = -1;
+
+	AudioType audioType = AudioType::None;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
