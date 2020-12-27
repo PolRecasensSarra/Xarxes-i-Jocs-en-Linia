@@ -376,6 +376,8 @@ void Spaceship::update()
 			doubleBullet_time = 10.0f;
 		}
 	}
+
+
 }
 
 void Spaceship::destroy()
@@ -536,6 +538,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			playSound = true;
 			audioType = AudioType::PowerUp;
+			
 			//App->modSound->playAudioClip(App->modResources->audioPowerUp);
 		}
 	}
@@ -628,8 +631,8 @@ void Spaceship::read(const InputMemoryStream & packet)
 			App->modSound->playAudioClip(App->modResources->audioShield);
 			break; }
 		}
-
 		playSound = false;
+		audioType = AudioType::None;
 
 	}
 }
@@ -667,6 +670,7 @@ void Spaceship::Respawn()
 		NetworkUpdate(gameObject);
 	}
 }
+
 
 bool Laser::GetIfPowerUp()
 {
