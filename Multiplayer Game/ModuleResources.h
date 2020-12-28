@@ -38,6 +38,8 @@ public:
 	AudioClip *audioClipExplosion = nullptr;
 	AudioClip *audioPowerUp = nullptr;
 	AudioClip *audioShield = nullptr;
+	AudioClip *audioDamage = nullptr;
+	AudioClip *audioShieldBreak = nullptr;
 
 	bool finishedLoading = false;
 

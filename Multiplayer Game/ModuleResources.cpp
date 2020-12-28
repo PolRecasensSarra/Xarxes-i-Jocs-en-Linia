@@ -56,6 +56,8 @@ bool ModuleResources::init()
 	audioClipExplosion = App->modSound->loadAudioClip("explosion.wav");
 	audioPowerUp = App->modSound->loadAudioClip("powerup.wav");
 	audioShield = App->modSound->loadAudioClip("shield.wav");
+	audioDamage = App->modSound->loadAudioClip("damage.wav");
+	audioShieldBreak = App->modSound->loadAudioClip("shieldBreak.wav");
 
 
 	return true;

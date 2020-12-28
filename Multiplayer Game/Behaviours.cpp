@@ -407,7 +407,7 @@ void Spaceship::onCollisionTriggered(Collider& c1, Collider& c2)
 
 						gameObject->behaviour->SetIfPowerUp(false);
 					}
-
+					App->modNetServer->PlayAudioForClients((uint32)AudioType::Damage);
 					NetworkUpdate(gameObject);
 				}
 
@@ -421,7 +421,7 @@ void Spaceship::onCollisionTriggered(Collider& c1, Collider& c2)
 					position = gameObject->position;
 
 					is_respawning = true;
-
+					App->modNetServer->PlayAudioForClients((uint32)AudioType::Explosion);
 				}
 
 				GameObject* explosion = NetworkInstantiate();
@@ -441,11 +441,12 @@ void Spaceship::onCollisionTriggered(Collider& c1, Collider& c2)
 
 				// NOTE(jesus): Only played in the server right now...
 				// You need to somehow make this happen in clients
-				App->modNetServer->PlayAudioForClients((uint32)AudioType::Explosion);
+				
 				
 			}
 			else
 			{
+				App->modNetServer->PlayAudioForClients((uint32)AudioType::ShieldBreak);
 				shielded = false;
 				is_invulnerable = true;
 				gameObject->sprite->texture = original_texture;

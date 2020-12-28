@@ -51,7 +51,8 @@ enum class AudioType : uint32
 	Explosion = 2,
 	PowerUp = 3,
 	Shield = 4,
-
+	Damage = 5,
+	ShieldBreak = 6,
 };
 
 

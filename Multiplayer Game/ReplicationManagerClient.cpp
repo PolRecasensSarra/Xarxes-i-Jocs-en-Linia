@@ -41,6 +41,12 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 			case AudioType::Shield: {
 				App->modSound->playAudioClip(App->modResources->audioShield);
 				break; }
+			case AudioType::Damage: {
+				App->modSound->playAudioClip(App->modResources->audioDamage);
+				break; }
+			case AudioType::ShieldBreak: {
+				App->modSound->playAudioClip(App->modResources->audioShieldBreak);
+				break; }
 			}
 		}
 		else if (action != ReplicationAction::None && action != ReplicationAction::PlayAudio)
