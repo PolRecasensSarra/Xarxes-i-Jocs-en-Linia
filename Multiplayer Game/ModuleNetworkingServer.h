@@ -50,7 +50,7 @@ private:
 		uint32 clientId;
 		std::string name;
 		GameObject *gameObject = nullptr;
-
+		DeliveryManager* deliveryManager;
 		
 		// TODO(you): Reliability on top of UDP lab session
 		float secondsSinceLastPacketReceived = 0.0f;

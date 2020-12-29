@@ -51,6 +51,8 @@ void ModuleNetworkingClient::onStart()
 
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
+
+	deliveryManager = new DeliveryManager();
 }
 
 void ModuleNetworkingClient::onGui()
@@ -142,6 +144,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 			break; }
 		case ServerMessage::Replication: {
 			replication_manager_client.read(packet);
+			deliveryManager->processSequenceNumber(packet);
 			break; }
 		case ServerMessage::Reliability: {
 			uint32 i = 0U;
@@ -150,8 +153,6 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 			break; }
 	
 		}
-
-
 	}
 }
 
@@ -251,6 +252,22 @@ void ModuleNetworkingClient::onUpdate()
 		else
 		{
 			// This means that the player has been destroyed (e.g. killed)
+		}
+
+		sinceLastSequenceNumbersSent += Time.deltaTime;
+
+		if (sinceLastSequenceNumbersSent >= timeToSendSequenceNumbers)
+		{
+			OutputMemoryStream packet;
+			packet << PROTOCOL_ID;
+			packet << ClientMessage::DeliveryManager;
+
+			if (deliveryManager->hasSequenceNumbersPendingAck())
+			{
+				deliveryManager->writeSequenceNumbersPendingAck(packet);
+			}
+
+			sinceLastSequenceNumbersSent = 0;
 		}
 	}
 }

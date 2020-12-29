@@ -50,5 +50,5 @@ private:
     std::list<uint32> pendingSequenceNumbers;
 
     // TimedOut Time
-    float timedOut = 2.0f;
+    float timedOut = 1.0f;
 };

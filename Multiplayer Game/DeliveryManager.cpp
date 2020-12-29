@@ -1,7 +1,6 @@
 #include "Networks.h"
 #include "DeliveryManager.h"
 
-// TODO(you): Reliability on top of UDP lab session
 
 Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStream& packet)
 {
@@ -27,6 +26,11 @@ bool DeliveryManager::processSequenceNumber(const InputMemoryStream& packet)
         {
             return false;
         }
+    }
+
+    if (pendingSequenceNumbers.size() > 0 && sequenceNumber <= pendingSequenceNumbers.back() + 1)
+    {
+        return false;
     }
 
     pendingSequenceNumbers.push_back(sequenceNumber);
