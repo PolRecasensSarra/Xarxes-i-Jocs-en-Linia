@@ -152,7 +152,6 @@ void Spaceship::onInput(const InputController &input)
 
 	if (input.actionUp == ButtonState::Pressed && !is_respawning)
 	{
-		const float advanceSpeed = 200.0f;
 		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
 
 		if (gameObject->position.x > 2500.0f)
@@ -320,6 +319,21 @@ void Spaceship::onInput(const InputController &input)
 
 			DoubleBullet* doubleBulletBehaviour = App->modBehaviour->addDoubleBullet(doubleBullet);
 			doubleBulletBehaviour->isServer = isServer;
+
+			//------------------------------------------------------------------
+			GameObject* superSpeed = NetworkInstantiate();
+
+			superSpeed->position = gameObject->position + vec2{ -150.0, -120.0 };
+			superSpeed->angle = 0.0f;
+			superSpeed->size = vec2{ 0.0f,0.0f };
+
+			superSpeed->sprite = App->modRender->addSprite(superSpeed);
+			superSpeed->sprite->order = 3;
+
+			superSpeed->sprite->texture = App->modResources->superSpeed;
+
+			SuperSpeed* superSpeedBehaviour = App->modBehaviour->addSuperSpeed(superSpeed);
+			superSpeedBehaviour->isServer = isServer;
 		}
 	}
 }
@@ -374,6 +388,18 @@ void Spaceship::update()
 		}
 	}
 
+
+	if (is_superspeed)
+	{
+		superSpeed_time -= Time.deltaTime;
+
+		if (superSpeed_time <= 0.0f)
+		{
+			is_superspeed = false;
+			superSpeed_time = 10.0f;
+			advanceSpeed *= 0.5f;
+		}
+	}
 
 }
 
@@ -525,15 +551,34 @@ void Spaceship::onCollisionTriggered(Collider& c1, Collider& c2)
 			App->modNetServer->PlayAudioForClients((uint32)AudioType::PowerUp);
 		}
 	}
+	else if (c2.type == ColliderType::SuperSpeed)
+	{
+		if (isServer)
+		{
+			if (is_superspeed)
+			{
+				superSpeed_time = 10.0f;
+			}
+			else
+			{
+				is_superspeed = true;
+				advanceSpeed *= 2;
+			}
+			NetworkDestroy(c2.gameObject);
+			App->modNetServer->PlayAudioForClients((uint32)AudioType::PowerUp);
+		}
+	}
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
 {
 	packet << hitPoints;
+	packet << advanceSpeed;
 	packet << powerUp;
 	packet << shielded;
 	packet << doubleBullet;
 	packet << is_invulnerable;
+	packet << is_superspeed;
 	packet << textureChanging;
 
 	if (textureChanging)
@@ -554,10 +599,12 @@ void Spaceship::write(OutputMemoryStream & packet)
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
+	packet >> advanceSpeed;
 	packet >> powerUp;
 	packet >> shielded;
 	packet >> doubleBullet;
 	packet >> is_invulnerable;
+	packet >> is_superspeed;
 	packet >> textureChanging;
 
 	if (textureChanging)
@@ -604,9 +651,11 @@ void Spaceship::Respawn()
 	shielded = false;
 	doubleBullet = false;
 	is_invulnerable = true;
+	is_superspeed = false;
 	playSound = false;
-	battery_time = 5.0f;
-	doubleBullet_time = 5.0f;
+	battery_time = 10.0f;
+	doubleBullet_time = 10.0f;
+	superSpeed_time = 10.0f;
 	audioType = AudioType::None;
 
 	vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
@@ -642,3 +691,14 @@ void Laser::read(const InputMemoryStream& packet)
 	packet >> powerUp;
 }
 
+void SuperSpeed::start()
+{
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
+
+	// Create collider
+	gameObject->collider = App->modCollision->addCollider(ColliderType::SuperSpeed, gameObject);
+}
+
+void SuperSpeed::update()
+{
+}

@@ -235,7 +235,7 @@ void ModuleNetworkingServer::onUpdate()
 			powerUpTime.randomTime = powerUpTime.min_time_between_spawns + (rand() % powerUpTime.max_difference_time);
 			powerUpTime.currentRandomTime = 0;
 
-			int randomPowerUp = rand() % 3;
+			int randomPowerUp = rand() % 4;
 
 			switch (randomPowerUp)
 			{
@@ -247,6 +247,9 @@ void ModuleNetworkingServer::onUpdate()
 				break;
 			case 2:
 				spawnGameElement(BehaviourType::DoubleBullet);
+				break;
+			case 3:
+				spawnGameElement(BehaviourType::SuperSpeed);
 				break;
 			}
 		}
@@ -510,6 +513,12 @@ GameObject* ModuleNetworkingServer::spawnGameElement(BehaviourType type)
 	{
 		gameElement->sprite->texture = App->modResources->doubleBullet;
 		gameElement->behaviour = App->modBehaviour->addDoubleBullet(gameElement);
+		break;
+	}
+	case BehaviourType::SuperSpeed:
+	{
+		gameElement->sprite->texture = App->modResources->superSpeed;
+		gameElement->behaviour = App->modBehaviour->addSuperSpeed(gameElement);
 		break;
 	}
 	}

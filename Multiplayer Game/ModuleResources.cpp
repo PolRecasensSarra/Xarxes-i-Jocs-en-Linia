@@ -50,6 +50,7 @@ bool ModuleResources::init()
 	loadTextureAsync("powerUp.png",       &battery, ++id);
 	loadTextureAsync("shield.png",       &shield, ++id);
 	loadTextureAsync("doubleBullet.png",       &doubleBullet, ++id);
+	loadTextureAsync("SuperSpeed.png",       &superSpeed, ++id);
 #endif
 
 	audioClipLaser = App->modSound->loadAudioClip("laser.wav");

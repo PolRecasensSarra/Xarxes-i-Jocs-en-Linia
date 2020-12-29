@@ -15,6 +15,7 @@ public:
 	Battery     * addBattery(GameObject *parentGameObject);
 	Shield     * addShield(GameObject *parentGameObject);
 	DoubleBullet     * addDoubleBullet(GameObject *parentGameObject);
+	SuperSpeed* addSuperSpeed(GameObject* parentGameObject);
 
 	Spaceship spaceships[MAX_CLIENTS];
 
@@ -27,5 +28,6 @@ private:
 	Battery battery[MAX_GAME_OBJECTS];
 	Shield shield[MAX_GAME_OBJECTS];
 	DoubleBullet doubleBullets[MAX_GAME_OBJECTS];
+	SuperSpeed superSpeeds[MAX_GAME_OBJECTS];
 };
 

@@ -31,6 +31,7 @@ public:
 	Texture *battery = nullptr;
 	Texture *shield = nullptr;
 	Texture *doubleBullet = nullptr;
+	Texture *superSpeed = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
 

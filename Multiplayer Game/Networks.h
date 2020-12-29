@@ -89,7 +89,8 @@ enum class ColliderType
 	Asteroid,
 	Battery,
 	Shield,
-	DoubleBullet
+	DoubleBullet,
+	SuperSpeed
 };
 
 

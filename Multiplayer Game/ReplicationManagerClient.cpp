@@ -133,6 +133,10 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 					case 6: { //Double Bullet
 						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::DoubleBullet, gameObject);
 						break; }
+					case 7:
+					{
+						gameObject->behaviour = App->modBehaviour->addBehaviour(BehaviourType::SuperSpeed, gameObject);
+					}
 					}
 
 					

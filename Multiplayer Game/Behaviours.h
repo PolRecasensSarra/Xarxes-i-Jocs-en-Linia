@@ -42,6 +42,7 @@ enum class BehaviourType : uint8
 	Battery = 4,
 	Shield = 5,
 	DoubleBullet = 6,
+	SuperSpeed = 7,
 };
 
 enum class AudioType : uint32
@@ -120,6 +121,15 @@ struct Shield : public Behaviour
 	void update() override;
 };
 
+struct SuperSpeed : public Behaviour
+{
+	BehaviourType type() const override { return BehaviourType::SuperSpeed; }
+
+	void start() override;
+
+	void update() override;
+};
+
 struct Spaceship : public Behaviour
 {
 	static const uint8 MAX_HIT_POINTS = 10;
@@ -139,6 +149,10 @@ struct Spaceship : public Behaviour
 	bool playSound = false;
 	Texture* original_texture = nullptr;
 	Texture* shielded_texture = nullptr;
+
+	float advanceSpeed = 200.0f;
+	bool is_superspeed = false;
+	float superSpeed_time = 10.0f;
 
 	int spaceshipType = -1;
 
@@ -164,6 +178,5 @@ struct Spaceship : public Behaviour
 	void SetSpaceshipType(int type) override;
 
 	void Respawn();
-
-
 };
+

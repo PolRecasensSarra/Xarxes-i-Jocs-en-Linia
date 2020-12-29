@@ -33,6 +33,11 @@ bool ModuleBehaviour::update()
 		handleBehaviourLifeCycle(&behaviour);
 	}
 
+	for (SuperSpeed& behaviour : superSpeeds)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+	}
+
 	return true;
 }
 
@@ -52,6 +57,8 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 		return addShield(parentGameObject);
 	case BehaviourType::DoubleBullet:
 		return addDoubleBullet(parentGameObject);
+	case BehaviourType::SuperSpeed:
+		return addSuperSpeed(parentGameObject);
 	default:
 		return nullptr;
 	}
@@ -145,6 +152,23 @@ Shield* ModuleBehaviour::addShield(GameObject* parentGameObject)
 DoubleBullet* ModuleBehaviour::addDoubleBullet(GameObject* parentGameObject)
 {
 	for (DoubleBullet& behaviour : doubleBullets)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
+
+	ASSERT(false);
+	return nullptr;
+}
+
+SuperSpeed* ModuleBehaviour::addSuperSpeed(GameObject* parentGameObject)
+{
+	for (SuperSpeed& behaviour : superSpeeds)
 	{
 		if (behaviour.gameObject == nullptr)
 		{
