@@ -268,6 +268,8 @@ void ModuleNetworkingClient::onUpdate()
 			}
 
 			sinceLastSequenceNumbersSent = 0;
+
+			sendPacket(packet, serverAddress);
 		}
 	}
 }

@@ -7,14 +7,21 @@ class DeliveryManager;
 
 class DeliveryDelegate {
 public:
-    virtual void onDeliverySuccess(DeliveryManager* deliveryManager) = 0;
-    virtual void onDeliveryFailure(DeliveryManager* deliveryManager) = 0;
+    virtual void onDeliverySuccess(DeliveryManager* deliveryManager, int SQ) = 0;
+    virtual void onDeliveryFailure(DeliveryManager* deliveryManager, int SQ) = 0;
+};
+
+class PacketLost : DeliveryDelegate
+{
+public:
+    void onDeliverySuccess(DeliveryManager* deliveryManager, int sequenceNumber) override;
+    void onDeliveryFailure(DeliveryManager* deliveryManager, int sequenceNumber) override;
 };
 
 struct Delivery {
     uint32 sequenceNumber = 0;
     double dispatchTime = 0.0;
-    DeliveryDelegate* delegate = nullptr;
+    PacketLost* delegate = nullptr;
 };
 
 class DeliveryManager {

@@ -154,7 +154,8 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 				OutputMemoryStream packet;
 				proxy->replication_manager_server.write(packet);
-				
+				proxy->deliveryManager->writeSequenceNumber(packet);
+
 				sendPacket(packet, fromAddress);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -297,9 +298,10 @@ void ModuleNetworkingServer::onUpdate()
 				OutputMemoryStream packet_up;
 				clientProxy.replication_manager_server.write(packet_up);
 				Delivery* del = clientProxy.deliveryManager->writeSequenceNumber(packet_up);
-				// TODO(Víctor): Register callbacks (onSuccess(), onFailure()) into the created delivery
 
 				sendPacket(packet_up, clientProxy.address);
+
+				clientProxy.deliveryManager->processTimedoutPackets();
 			}
 		}
 	}
