@@ -1,15 +1,17 @@
 #include "Networks.h"
 #include "DeliveryManager.h"
 
-// TODO(you): Reliability on top of UDP lab session
 
 Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStream& packet)
 {
     Delivery del;
     packet << nextOutgoingSequenceNumber;
 
-    del.sequenceNumber = nextOutgoingSequenceNumber++;
+    del.sequenceNumber = nextOutgoingSequenceNumber;
     del.dispatchTime = Time.time;
+    del.delegate = new PacketLost();
+
+    ++nextOutgoingSequenceNumber;
 
     pendingDeliveries.push_back(del);
 
@@ -29,6 +31,11 @@ bool DeliveryManager::processSequenceNumber(const InputMemoryStream& packet)
         }
     }
 
+    if (pendingSequenceNumbers.size() > 0 && sequenceNumber < pendingSequenceNumbers.back() + 1)
+    {
+        return false;
+    }
+
     pendingSequenceNumbers.push_back(sequenceNumber);
     return true;
 }
@@ -45,7 +52,7 @@ bool DeliveryManager::hasSequenceNumbersPendingAck() const
 
 void DeliveryManager::writeSequenceNumbersPendingAck(OutputMemoryStream& packet)
 {
-    packet << pendingSequenceNumbers.size();
+    packet << (int)pendingSequenceNumbers.size();
 
     for (auto iter = pendingSequenceNumbers.begin(); iter != pendingSequenceNumbers.end(); ++iter)
     {
@@ -70,7 +77,7 @@ void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet
             {
                 if ((*iter).delegate != nullptr)
                 {
-                    (*iter).delegate->onDeliverySuccess(this);
+                    (*iter).delegate->onDeliverySuccess(this, (*iter).sequenceNumber);
                 }
 
                 iter = pendingDeliveries.erase(iter);
@@ -91,7 +98,7 @@ void DeliveryManager::processTimedoutPackets()
         {
             if ((*iter).delegate != nullptr)
             {
-                (*iter).delegate->onDeliveryFailure(this);
+                (*iter).delegate->onDeliveryFailure(this, (*iter).sequenceNumber);
             }
 
             iter = pendingDeliveries.erase(iter);
@@ -109,11 +116,21 @@ void DeliveryManager::clear()
     pendingSequenceNumbers.clear();
 }
 
-void DeliveryDelegate::onDeliverySuccess(DeliveryManager* deliveryManager)
+void DeliveryDelegate::onDeliverySuccess(DeliveryManager* deliveryManager, int sequenceNumber)
 {
 
 }
 
-void DeliveryDelegate::onDeliveryFailure(DeliveryManager* deliveryManager)
+void DeliveryDelegate::onDeliveryFailure(DeliveryManager* deliveryManager, int sequenceNumber)
 {
+}
+
+void PacketLost::onDeliverySuccess(DeliveryManager* deliveryManager, int sequenceNumber)
+{
+    //LOG("Packet %i arrived!", sequenceNumber);
+}
+
+void PacketLost::onDeliveryFailure(DeliveryManager* deliveryManager, int sequenceNumber)
+{
+    //LOG("Packet %i was lost :c", sequenceNumber);
 }

@@ -130,7 +130,6 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 
 			}
 
-
 			(*item).second = ReplicationAction::None;
 		}
 		++item;

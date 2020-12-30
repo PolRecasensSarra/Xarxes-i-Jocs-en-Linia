@@ -1,6 +1,6 @@
 #include "ModuleNetworkingServer.h"
 #include <cmath>
-
+#include "DeliveryManager.h"
 
 //////////////////////////////////////////////////////////////////////
 // ModuleNetworkingServer public methods
@@ -115,6 +115,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					proxy->connected = true;
 					proxy->name = playerName;
 					proxy->clientId = nextClientId++;
+					proxy->deliveryManager = new DeliveryManager();
 
 					// Create new network object
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
@@ -135,6 +136,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				welcomePacket << ServerMessage::Welcome;
 				welcomePacket << proxy->clientId;
 				welcomePacket << proxy->gameObject->networkId;
+
 				sendPacket(welcomePacket, fromAddress);
 
 				// Send all network objects to the new player
@@ -145,7 +147,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					GameObject *gameObject = networkGameObjects[i];
-					// TODO(you): World state replication lab session
 					proxy->replication_manager_server.create(gameObject->networkId);  // En teoria això hauria d'instanciar els objectes antics al nou proxy
 
 					go_aux = gameObject;
@@ -153,13 +154,9 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 				OutputMemoryStream packet;
 				proxy->replication_manager_server.write(packet);
-				
+				proxy->deliveryManager->writeSequenceNumber(packet);
+
 				sendPacket(packet, fromAddress);
-
-
-
-		
-
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
@@ -213,6 +210,10 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 		{
 			proxy->secondsSinceLastPacketReceived = 0.0f;
 			LOG("Ping Received");
+		}
+		else if (message == ClientMessage::DeliveryManager)
+		{
+			proxy->deliveryManager->processAckdSequenceNumbers(packet);
 		}
 	}
 }
@@ -275,8 +276,6 @@ void ModuleNetworkingServer::onUpdate()
 				clientProxy.secondsSinceLastPacketReceived += Time.deltaTime;
 				clientProxy.pingTimer += Time.deltaTime;
 				
-				
-
 				if(clientProxy.secondsSinceLastPacketReceived > DISCONNECT_TIMEOUT_SECONDS)
 				{
 					onConnectionReset(clientProxy.address);
@@ -301,10 +300,11 @@ void ModuleNetworkingServer::onUpdate()
 
 				OutputMemoryStream packet_up;
 				clientProxy.replication_manager_server.write(packet_up);
-				sendPacket(packet_up, clientProxy.address);
-				
+				Delivery* del = clientProxy.deliveryManager->writeSequenceNumber(packet_up);
 
-				// TODO(you): Reliability on top of UDP lab session
+				sendPacket(packet_up, clientProxy.address);
+
+				clientProxy.deliveryManager->processTimedoutPackets();
 			}
 		}
 	}

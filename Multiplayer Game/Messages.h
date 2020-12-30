@@ -5,7 +5,8 @@ enum class ClientMessage : uint8
 	Hello,
 	Input,
 	Ping,
-	Reliability// NOTE(jesus): Use this message type in the virtual connection lab session
+	Reliability,// NOTE(jesus): Use this message type in the virtual connection lab session
+	DeliveryManager
 };
 
 enum class ServerMessage : uint8
@@ -14,5 +15,5 @@ enum class ServerMessage : uint8
 	Unwelcome,
 	Ping,
 	Replication,
-	Reliability// NOTE(jesus): Use this message type in the virtual connection lab session
+	Reliability,// NOTE(jesus): Use this message type in the virtual connection lab session
 };
